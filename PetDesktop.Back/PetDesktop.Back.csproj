@@ -13,4 +13,8 @@
       <Folder Include="Services\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Avalonia" Version="12.0.4" />
+    </ItemGroup>
+
 </Project>
