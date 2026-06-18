@@ -15,7 +15,7 @@
         Background="Transparent"
         TransparencyLevelHint="Transparent">
 
-    <Grid Background="#01FFFFFF">
+    <Grid Background="Transparent">
         <i:Interaction.Behaviors>
           <behaviors:DrawWindowBehavior></behaviors:DrawWindowBehavior>
         </i:Interaction.Behaviors>
