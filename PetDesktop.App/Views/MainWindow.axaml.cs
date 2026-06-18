@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 
-namespace PetDesktop.App;
+namespace PetDesktop.App.Views;
 
 public partial class MainWindow : Window
 {
