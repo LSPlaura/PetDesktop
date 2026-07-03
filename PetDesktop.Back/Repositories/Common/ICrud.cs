@@ -6,5 +6,6 @@ public interface ICrud<TKey, TValue>
     TValue Delete(TKey key);
     TValue Update(TKey key);
     TValue GetById(TKey key);
+    bool Exists(TKey key);
 
 }
