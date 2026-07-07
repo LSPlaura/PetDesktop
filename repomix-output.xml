@@ -1,0 +1,896 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+.gitignore
+PetDesktop.App/App.axaml
+PetDesktop.App/App.axaml.cs
+PetDesktop.App/app.manifest
+PetDesktop.App/Behaviors/DrawWindowBehavior.cs
+PetDesktop.App/PetDesktop.App.csproj
+PetDesktop.App/Program.cs
+PetDesktop.App/readme.md
+PetDesktop.App/ViewModels/MainWindowViewModel.cs
+PetDesktop.App/Views/MainWindow.axaml
+PetDesktop.App/Views/MainWindow.axaml.cs
+PetDesktop.Back/appSettings.json
+PetDesktop.Back/Config/Config.cs
+PetDesktop.Back/Entities/DbContext/AppDbContext.cs
+PetDesktop.Back/Factories/PetFactory.cs
+PetDesktop.Back/Models/Pet.cs
+PetDesktop.Back/Models/SpriteSheet.cs
+PetDesktop.Back/PetDesktop.Back.csproj
+PetDesktop.Back/Program.cs
+PetDesktop.Back/Repositories/Common/ICrud.cs
+PetDesktop.Back/Repositories/Pet/IPetRepository.cs
+PetDesktop.Back/Repositories/Pet/PetRepository.cs
+PetDesktop.Back/Repositories/SpriteSheet/ISpriteSheetRepository.cs
+PetDesktop.Back/Repositories/SpriteSheet/SpriteSheetRepository.cs
+PetDesktop.Back/Services/App/PetDesktopService.cs
+PetDesktop.Back/Services/SpriteSheet/SpriteSheetGenerator.cs
+PetDesktop.Back/Services/SpriteSheet/SpriteSheetService.cs
+PetDesktop.slnx
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path=".gitignore">
+/PetDesktop.App/bin/
+/PetDesktop.App/obj/
+/PetDesktop.Back/bin/
+/PetDesktop.Back/obj/
+</file>
+
+<file path="PetDesktop.App/App.axaml">
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="PetDesktop.App.App"
+             RequestedThemeVariant="Default">
+             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+
+    <Application.Styles>
+        <FluentTheme />
+    </Application.Styles>
+</Application>
+</file>
+
+<file path="PetDesktop.App/app.manifest">
+<?xml version="1.0" encoding="utf-8"?>
+<assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1">
+  <!-- This manifest is used on Windows only.
+       Don't remove it as it might cause problems with window transparency and embedded controls.
+       For more details visit https://learn.microsoft.com/en-us/windows/win32/sbscs/application-manifests -->
+  <assemblyIdentity version="1.0.0.0" name="PetDesktop.App.Desktop"/>
+
+  <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
+    <application>
+      <!-- A list of the Windows versions that this application has been tested on
+           and is designed to work with. Uncomment the appropriate elements
+           and Windows will automatically select the most compatible environment. -->
+
+      <!-- Windows 10 -->
+      <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}" />
+    </application>
+  </compatibility>
+</assembly>
+</file>
+
+<file path="PetDesktop.App/Behaviors/DrawWindowBehavior.cs">
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.VisualTree;
+using Avalonia.Xaml.Interactivity;
+
+namespace PetDesktop.App.Behaviors;
+
+/// <summary>
+/// Extensión de <see cref="Behavior"/> para crear un método propio que permita mover la ventana al presionar solo el botón izquierdo
+/// </summary>
+public class DrawWindowBehavior : Behavior<Control>
+{
+    /// <summary>
+    /// Sobreescribe lo que sucede al crear el componente
+    /// </summary>
+    protected override void OnAttached()
+    {
+        base.OnAttached();
+        if(AssociatedObject != null) 
+            AssociatedObject.PointerPressed += OnLeftPointerPressed;
+    }
+
+    /// <summary>
+    /// Sobreescribe lo que sucede al destruir el componente
+    /// </summary>
+    protected override void OnDetaching()
+    {
+        base.OnDetaching();
+        if(AssociatedObject != null) 
+            AssociatedObject.PointerPressed -= OnLeftPointerPressed;
+    }
+
+    /// <summary>
+    /// Manejador del evento que se dispara cuando el usuario presiona el puntero (ratón, dedo o lápiz) 
+    /// sobre el objeto asociado, iniciando el arrastre físico de la ventana si se cumple el filtro.
+    /// </summary>
+    /// <param name="sender">El objeto que originó el evento (en este caso, el <see cref="Control"/> asociado).</param>
+    /// <param name="e">Los argumentos del evento que contienen la información física y espacial de la pulsación.</param>
+    private void OnLeftPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        //se escala el árbol visual para encontrar el primer ancestro que sea del tipo Window, el grid al que está asociado no tiene la capacidad de moverse, es la ventana la que puede
+        var window = AssociatedObject.FindAncestorOfType<Window>();
+
+        if (window != null)
+        {
+            var pointerProperties = e.GetCurrentPoint(window).Properties;
+            if (pointerProperties.IsLeftButtonPressed) window.BeginMoveDrag(e);
+        }
+    }
+}
+</file>
+
+<file path="PetDesktop.App/Program.cs">
+using Avalonia;
+using System;
+
+namespace PetDesktop.App;
+
+class Program
+{
+    // Initialization code. Don't use any Avalonia, third-party APIs or any
+    // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
+    // yet and stuff might break.
+    [STAThread]
+    public static void Main(string[] args) => BuildAvaloniaApp()
+        .StartWithClassicDesktopLifetime(args);
+
+    // Avalonia configuration, don't remove; also used by visual designer.
+    public static AppBuilder BuildAvaloniaApp()
+        => AppBuilder.Configure<App>()
+            .UsePlatformDetect()
+#if DEBUG
+            .WithDeveloperTools()
+#endif
+            .WithInterFont()
+            .LogToTrace();
+}
+</file>
+
+<file path="PetDesktop.App/readme.md">
+# Arquitectura de la Capa de Presentación: MVVM y Comportamientos Desacoplados
+
+El proyecto implementa el patrón de diseño arquitectónico **MVVM (Model-View-ViewModel)** con el objetivo primordial de aislar por completo la lógica de negocio de los componentes visuales de la interfaz de usuario.
+
+Para gestionar las interacciones físicas y los eventos del sistema operativo sin corromper este desacoplamiento, se ha adoptado una estrategia basada en la **extensión de Behaviors (Comportamientos)**.
+
+## Pilares de la Arquitectura
+
+### 1. Desacoplamiento Estricto (MVVM)
+* **Vista (View):** Definida de manera puramente declarativa en XAML. El archivo de código subyacente (*Code-Behind*) se mantiene libre de lógica procedimental, sirviendo únicamente para la inicialización nativa del componente.
+* **Vista-Modelo (ViewModel):** Gobierna el estado y las reglas de la aplicación de forma abstracta, comunicándose con la vista exclusivamente a través de mecanismos de *Data Binding* y comandos (`ICommand`).
+* **Modelo (Model):** Representa las entidades puras de C# y la lógica del negocio (ej. el motor de la mascota virtual), sin conocimiento alguno sobre el entorno gráfico.
+
+### 2. Extensión de Behaviors (Comportamientos Personalizados)
+En lugar de procesar los eventos nativos del sistema operativo (como gestos del ratón, teclado o arrastre de ventanas) mediante métodos imperativos dentro de la propia vista, la arquitectura delega estas tareas a clases especializadas que extienden de `Behavior<T>`.
+
+
+
+#### Beneficios Técnicos:
+* **Reutilización de Código:** Los métodos y la lógica de captura de eventos encapsulados en un Behavior se convierten en componentes inyectables. Pueden ser reutilizados en cualquier contenedor o ventana del proyecto simplemente declarándolos en el XAML.
+* **Gestión Eficiente del Ciclo de Vida:** Al controlar explícitamente los momentos de acoplamiento (`OnAttached`) y desacoplamiento (`OnDetaching`), se asegura la correcta liberación de recursos en la memoria RAM, eliminando el riesgo de fugas de memoria (*Memory Leaks*) por suscripciones a eventos huérfanos.
+* **Facilidad de Mantenimiento:** Si las reglas de interacción con el sistema operativo cambian (por ejemplo, modificar el comportamiento del arrastre o filtrar un clic específico), el cambio se realiza en un único archivo aislado, sin alterar las vistas ni los ViewModels.
+* **Código Limpio y Legible:** Al extraer la "fontanería" visual de los archivos de la vista, el proyecto se alinea con el principio de Responsabilidad Única (SOLID), resultando en una base de código más elegante, modular y fácil de auditar.
+</file>
+
+<file path="PetDesktop.App/ViewModels/MainWindowViewModel.cs">
+namespace PetDesktop.App.ViewModels;
+
+public class MainWindowViewModel
+{
+    
+}
+</file>
+
+<file path="PetDesktop.App/Views/MainWindow.axaml.cs">
+using Avalonia.Controls;
+
+namespace PetDesktop.App.Views;
+
+public partial class MainWindow : Window
+{
+    public MainWindow()
+    {
+        InitializeComponent();
+    }
+}
+</file>
+
+<file path="PetDesktop.Back/Entities/DbContext/AppDbContext.cs">
+using Microsoft.EntityFrameworkCore;
+using PetDesktop.Back.Models;
+
+namespace PetDesktop.Back.Entities;
+
+public class AppDbContext : DbContext
+{
+    public DbSet<Pet> Pet {get; set; } = null!;
+    public DbSet<SpriteSheet> SpriteSheet {get; set; } = null!;
+    
+    private readonly string _connection;
+    
+    public AppDbContext(string connecion)
+    {
+        _connection = connecion;
+    }
+    
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    {
+        _connection = "";
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        if (!optionsBuilder.IsConfigured) optionsBuilder.UseSqlite(_connection);
+    }
+    public void EnsureCreated()
+    {
+        Database.EnsureCreated();
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        // 1. CONFIGURACIÓN EXPLÍCITA DE PET
+        modelBuilder.Entity<Pet>(builder =>
+        {
+            builder.ToTable("Pet");
+            
+            // Clave Primaria (Obligatoria por defecto)
+            builder.HasKey(p => p.Name);
+            builder.Property(p => p.Name)
+                .IsRequired();
+
+            // Mensaje: Permite nulos, valor por defecto "Drink Water!"
+            builder.Property(p => p.Message)
+                .IsRequired(false)
+                .HasDefaultValue("Drink Water!");
+
+            // Intervalo de tiempo: Requerido, convertido a string ("c") para SQLite
+            builder.Property(p => p.TimeMessageInterval)
+                .IsRequired()
+                .HasConversion(
+                    v => v.ToString("c"),   
+                    v => TimeSpan.Parse(v)
+                );
+
+            // Relación 1 a 1 (Opcional): Una Pet tiene una ActualAnimation (SpriteSheet) o ninguna.
+            // Si la Pet se borra, NO queremos borrar el SpriteSheet general (por eso No-Cascade aquí).
+            builder.HasOne(p => p.ActualAnimation)
+                .WithOne()
+                .HasForeignKey<Pet>("ActualAnimationName") // Crea una columna FK oculta en Pet que permite NULL
+                .IsRequired(false)                         // La animación por defecto es opcional (nula)
+                .OnDelete(DeleteBehavior.SetNull);         // Si se borra el SpriteSheet, la Pet queda con animación en null
+        });
+
+        // 2. CONFIGURACIÓN EXPLÍCITA DE SPRITESHEET
+        modelBuilder.Entity<SpriteSheet>(builder =>
+        {
+            builder.ToTable("SpriteSheet");
+            
+            // Clave Primaria
+            builder.HasKey(s => s.Name);
+            builder.Property(s => s.Name)
+                .IsRequired();
+
+            builder.Property(s => s.Route)
+                .IsRequired();
+
+            builder.Property(s => s.FrameWidth)
+                .IsRequired();
+
+            builder.Property(s => s.FrameHeight)
+                .IsRequired();
+
+            // Clave Foránea: Requerida porque todo SpriteSheet debe pertenecer a una mascota
+            builder.Property(s => s.AssociatedPet)
+                .IsRequired();
+
+            // Relación inversa: Mapea la FK físicac con ON DELETE CASCADE
+            builder.HasOne<Pet>()                             
+                .WithMany()                                   
+                .HasForeignKey(s => s.AssociatedPet)          
+                .HasPrincipalKey(p => p.Name)                 
+                .OnDelete(DeleteBehavior.Cascade);            // Si borras la Pet, se borran sus SpriteSheets
+        });
+    }
+}
+</file>
+
+<file path="PetDesktop.Back/Factories/PetFactory.cs">
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
+using PetDesktop.Back.Models;
+
+namespace PetDesktop.Back.Factories;
+
+public static class PetFactory
+{
+    private const string DefaultSpriteRoute = "avares://PetDesktop.UI/Assets/Sprites/pet_default.png";
+
+    public static Pet CreateDefaultPet()
+    {
+        return new Pet
+        {
+            ActualAnimation = new SpriteSheet
+            {
+                Name = "Default_Idle",
+                Route = DefaultSpriteRoute,
+                FrameWidth = 64,
+                FrameHeight = 64,
+                AssociatedPet = "Mascota por defecto"
+            }
+        };
+    }
+}
+</file>
+
+<file path="PetDesktop.Back/Program.cs">
+namespace PetDesktop.Back;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        Console.WriteLine("Hello, World!");
+    }
+}
+</file>
+
+<file path="PetDesktop.Back/Repositories/Pet/IPetRepository.cs">
+namespace PetDesktop.Back.Repositories.Pet;
+
+public interface IPetRepository : ICrud<string, Models.Pet>
+{
+    
+}
+</file>
+
+<file path="PetDesktop.Back/Repositories/SpriteSheet/ISpriteSheetRepository.cs">
+namespace PetDesktop.Back.Repositories.SpriteSheet;
+
+public interface ISpriteSheetRepository : ICrud<string, Models.SpriteSheet>
+{
+    
+}
+</file>
+
+<file path="PetDesktop.Back/Repositories/SpriteSheet/SpriteSheetRepository.cs">
+using PetDesktop.Back.Models;
+
+namespace PetDesktop.Back.Repositories;
+
+public class SpriteSheetRepository()
+{
+    
+}
+</file>
+
+<file path="PetDesktop.Back/Services/App/PetDesktopService.cs">
+using PetDesktop.Back.Models;
+using PetDesktop.Back.Repositories.Pet;
+using PetDesktop.Back.Repositories.SpriteSheet;
+using PetDesktop.Back.Services.SpriteSheet;
+
+namespace PetDesktop.Back.Services.App;
+
+public class PetDesktopService
+{
+    private readonly SpriteSheetService _spriteSheetManager;
+    private readonly SpriteSheetGenerator _spriteSheetGenerator;
+    private readonly ISpriteSheetRepository _spriteSheetRepository;
+    private readonly IPetRepository _petRepository;
+    
+    public PetDesktopService(
+        SpriteSheetService spriteSheetManager, 
+        SpriteSheetGenerator spriteSheetGenerator, 
+        ISpriteSheetRepository spriteSheetRepository, 
+        IPetRepository petRepository) 
+    {
+        _spriteSheetManager = spriteSheetManager;
+        _spriteSheetGenerator = spriteSheetGenerator;
+        _spriteSheetRepository = spriteSheetRepository;
+        _petRepository = petRepository;
+        
+        Init(); 
+    }
+    
+    public void Init()
+    {
+        var defaultPet = Factories.PetFactory.CreateDefaultPet();
+        CreatePet(defaultPet);
+    }
+    public void CreatePet(Pet item)
+    {
+        
+    }
+
+    public void DeletePet()
+    {
+        
+    }
+
+    public void GetPet()
+    {
+        
+    }
+
+    public void GetAllPet()
+    {
+        
+    }
+}
+</file>
+
+<file path="PetDesktop.Back/Services/SpriteSheet/SpriteSheetService.cs">
+using PetDesktop.Back.Repositories;
+
+namespace PetDesktop.Back.Services.SpriteSheet;
+
+public class SpriteSheetService(SpriteSheetGenerator spriteSheetGenerator, SpriteSheetRepository spriteSheetRepository)
+{
+   public async Task<Models.SpriteSheet> CreateAsync(Models.SpriteSheet item, List<Stream> pngImages)
+   {
+      try
+      {
+         using var spriteSheetCreated = await spriteSheetGenerator.CreateSpriteSheetAsync(item.FrameWidth, item.FrameHeight, pngImages);
+         await spriteSheetGenerator.SaveSpriteSheet(item.Name, spriteSheetCreated);
+         return spriteSheetRepository.Save(item);
+      }
+      catch(Exception ex)
+      {
+         throw new Exception();
+      }
+   }
+}
+</file>
+
+<file path="PetDesktop.slnx">
+<Solution>
+  <Project Path="PetDesktop.App/PetDesktop.App.csproj" />
+  <Project Path="PetDesktop.Back/PetDesktop.Back.csproj" />
+</Solution>
+</file>
+
+<file path="PetDesktop.App/App.axaml.cs">
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Markup.Xaml;
+using PetDesktop.App.Views;
+
+namespace PetDesktop.App;
+
+public partial class App : Application
+{
+    public override void Initialize()
+    {
+        AvaloniaXamlLoader.Load(this);
+    }
+
+    public override void OnFrameworkInitializationCompleted()
+    {
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            desktop.MainWindow = new MainWindow();
+        }
+
+        base.OnFrameworkInitializationCompleted();
+    }
+}
+</file>
+
+<file path="PetDesktop.App/PetDesktop.App.csproj">
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.0.4" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.0.4" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.4" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.4" />
+    <PackageReference Include="Avalonia.Xaml.Behaviors" Version="11.0.6" />
+    <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.1">
+      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+      <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PetDesktop.Back\PetDesktop.Back.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\MainWindow.axaml.cs">
+      <DependentUpon>MainWindow.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="Views\MainWindow.axaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Assets\SpriteSheet\" />
+  </ItemGroup>
+  
+</Project>
+</file>
+
+<file path="PetDesktop.App/Views/MainWindow.axaml">
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+        xmlns:behaviors="clr-namespace:PetDesktop.App.Behaviors"
+        xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions.Core"
+        mc:Ignorable="d" 
+        d:DesignWidth="300" d:DesignHeight="300"
+        Width="300" Height="300"
+        x:Class="PetDesktop.App.Views.MainWindow"
+        Title="PetDesktop"
+        SystemDecorations="None"
+        Topmost="True"
+        Background="Transparent"
+        TransparencyLevelHint="Transparent">
+
+    <Grid Background="Transparent">
+        <i:Interaction.Behaviors>
+          <behaviors:DrawWindowBehavior></behaviors:DrawWindowBehavior>
+        </i:Interaction.Behaviors>
+        
+        <TextBlock Text="Welcome to Avalonia!" 
+                   FontSize="20" 
+                   Foreground="White"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"/>
+    </Grid>
+</Window>
+</file>
+
+<file path="PetDesktop.Back/appSettings.json">
+{
+  "Repository": {
+    "Folder": "Repository"
+  },
+  "PetSettings": {
+    "SpriteSheetSettings": {
+      "SpriteSheetFolder": "SpriteSheets"
+    }
+  },
+  "DefaultPet": {
+    "Name": "DefaultPet",
+    "InitialAnimation": "WalkRight",
+    "Route": "avares://PetDesktop.UI/Assets/SpriteSheet/WalkRight.png",
+    "FrameWidth": 64,
+    "FrameHeight": 64
+  },
+  "Serilog": {
+    "Using": [
+      "Serilog.Sinks.Console",
+      "Serilog.Sinks.File"
+    ],
+    "MinimumLevel": "Debug",
+    "WriteTo": [
+      {
+        "Name": "Console",
+        "Args": {
+          "outputTemplate": "{Timestamp:HH:mm:ss.fff} [{Level:u3}] [{SourceContext}] {Message:lj}{NewLine}{Exception}"
+        }
+      },
+      {
+        "Name": "File",
+        "Args": {
+          "path": "log/log-.txt",
+          "rollingInterval": "Day",
+          "retainedFileCountLimit": 5,
+          "outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] [{SourceContext}] {Message:lj}{NewLine}{Exception}"
+        }
+      }
+    ]
+  }
+}
+</file>
+
+<file path="PetDesktop.Back/Config/Config.cs">
+using Avalonia.Media.Imaging;
+using Microsoft.Extensions.Configuration;
+
+namespace PetDesktop.Back.Config;
+
+public static class Config
+{
+    public static readonly IConfigurationRoot Settings = new ConfigurationBuilder()
+        .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+        .AddJsonFile("appsettings.json", false, true)
+        .Build();
+
+    public static string SpriteSheetRoute { get; } = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "PetDesktop", SpriteSheetFolder);
+
+    public static string SpriteSheetFolder { get; } =
+        Settings.GetValue<string>("SpriteSettings:SpriteSheetFolder") ?? "SpriteSheets";
+
+    public static string Name { get; } = Settings.GetValue<string>("AnimationName") ?? "Default_Idle";
+
+    public static string Route { get; }= Settings.GetValue<string>("Route") ??
+                                         "avares://PetDesktop.UI/Assets/SpriteSheet/WalkRight.png";
+    public static int FrameWidth { get; } = Settings.GetValue<int>("FrameWidth");
+    public static int FrameHeight { get; } = Settings.GetValue<int>("FrameHeight");
+    public static string AssociatedPet { get; } = Settings.GetValue<string>("Name") ?? "DefaultPet";
+}
+</file>
+
+<file path="PetDesktop.Back/Models/SpriteSheet.cs">
+namespace PetDesktop.Back.Models;
+
+public class SpriteSheet
+{
+    public string Name { get; init; } = string.Empty;
+    public string Route { get; init; } = string.Empty;
+    public int FrameWidth { get; init; }
+    public int FrameHeight { get; init; }
+    public string AssociatedPet { get; set; } = string.Empty;
+}
+</file>
+
+<file path="PetDesktop.Back/Repositories/Common/ICrud.cs">
+namespace PetDesktop.Back.Repositories;
+
+public interface ICrud<TKey, TValue>
+{
+    IEnumerable<TValue> GetAll(int page, int pageSize);
+    TValue Create(TValue value);
+    TValue Delete(TKey key);
+    TValue Update(TKey key);
+    TValue GetById(TKey key);
+    bool Exists(TKey key);
+
+}
+</file>
+
+<file path="PetDesktop.Back/Repositories/Pet/PetRepository.cs">
+using Microsoft.EntityFrameworkCore;
+using PetDesktop.Back.Entities;
+
+namespace PetDesktop.Back.Repositories.Pet;
+
+public class PetRepository : IPetRepository
+{
+    private AppDbContext _context;
+    public PetRepository(AppDbContext context)
+    {
+        _context = context;
+    }
+
+    public IEnumerable<Models.Pet> GetAll(int page = 0, int pageSize = 5)
+    {
+        return _context.Pet
+            .AsNoTracking()
+            .OrderBy(p => p.Name)
+            .Skip(page * pageSize)
+            .Take(pageSize)
+            .ToList();
+    }
+
+    public Models.Pet Create(Models.Pet value)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Models.Pet Delete(string key)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Models.Pet Update(string key)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Models.Pet GetById(string key)
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool Exists(string key)
+    {
+        throw new NotImplementedException();
+    }
+}
+</file>
+
+<file path="PetDesktop.Back/Services/SpriteSheet/SpriteSheetGenerator.cs">
+using SkiaSharp;
+
+namespace PetDesktop.Back.Services.SpriteSheet;
+
+public class SpriteSheetGenerator
+{
+    private string _folderRoute =
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "PetDesktop",
+            Config.Config.SpriteSheetFolder);
+    public SpriteSheetGenerator()
+    {
+        Init();
+    }
+
+    public void Init()
+    {
+        if (!Directory.Exists(_folderRoute)) 
+            Directory.CreateDirectory(_folderRoute);
+    }
+    public async Task<Stream> CreateSpriteSheetAsync(int frameWidth, int frameHeight, List<Stream> pngStreams)
+    {
+        if (pngStreams == null || pngStreams.Count == 0)
+            throw new ArgumentException("La lista de imágenes no puede estar vacía.");
+
+        int totalFrames = pngStreams.Count;
+        int canvasWidth = totalFrames * frameWidth;
+
+        //crea la información que el spritesheet tendrá (tamaño, como trata el color, como trata la transparencia)
+        var imageInfo = new SKImageInfo(canvasWidth, frameHeight, SKColorType.Rgba8888, SKAlphaType.Premul);
+        
+       //reserva una imagen en la memoria ram con la anterior información
+        using var bitmapImage = new SKBitmap(imageInfo);
+        //se crea un lienzo para poder dibujar sobre la imagen
+        using (var canvas = new SKCanvas(bitmapImage))
+        {
+            //se limpia el fondo y se decide dejar como transparente
+            canvas.Clear(SKColors.Transparent);
+
+            for (int i = 0; i < totalFrames; i++)
+            {
+                var stream = pngStreams[i];
+                if (!stream.CanSeek) throw new InvalidDataException($"Stream no válido en el índice {i}");
+                stream.Position = 0;
+
+                //se asegura de que el stream esté en el formato correcto(png)
+                using (var codec = SKCodec.Create(stream))
+                using (var spriteUserBytes = SKBitmap.Decode(codec)) //convierte el stream en una matriz de pixeles añmacenados en la ram
+                {
+                    int lastPixelX = i * frameWidth;
+
+                    // Definimos el rectángulo (donde se va a estampar el sprite) de destino en el lienzo giga
+                    var drawingPositionArea = SKRect.Create(lastPixelX, 0, frameWidth, frameHeight);
+
+                    // Se dibuja el sprite en el lienzo
+                    // Skia maneja el redimensionamiento automáticamente si el origen y destino difieren
+                    canvas.DrawBitmap(spriteUserBytes, drawingPositionArea);
+                }
+            }
+        }
+
+        //se crea el memory stream para posteriormente poder guardarlo en un archivo
+        var outputStream = new MemoryStream();
+        //se crea la imagen como imagen (en bytes)
+        using (var image = SKImage.FromBitmap(bitmapImage))
+        using (var codedImage = image.Encode(SKEncodedImageFormat.Png, 100)) //se codifica en el formato que se quiere
+        {
+            //se guarda la imagen en bytes ya codificada en el memory stream
+            await Task.Run(() => codedImage.SaveTo(outputStream));
+        }
+        
+        outputStream.Position = 0; // Se resetea la posición para que quien lo reciba pueda leerlo
+        
+        return outputStream;
+    }
+    
+    public async Task SaveSpriteSheet(string name, Stream spriteSheetStream)
+    {
+        string fileName = $"{name}.png";
+
+        string destinationRoute = Path.Combine(_folderRoute, fileName);
+        
+        using (var fileStream = new FileStream(destinationRoute, FileMode.Create, FileAccess.Write, FileShare.None, 4096, useAsync: true))
+        {
+            await spriteSheetStream.CopyToAsync(fileStream);
+        }
+    }
+}
+</file>
+
+<file path="PetDesktop.Back/Models/Pet.cs">
+namespace PetDesktop.Back.Models;
+
+public class Pet
+{
+    public string Name { get; init; } = string.Empty;
+    public SpriteSheet? ActualAnimation { get; set; } = null;
+    public string? Message { get; set; } = "Drink Water!";
+    public TimeSpan TimeMessageInterval { get; set; } = TimeSpan.FromMinutes(30);
+}
+</file>
+
+<file path="PetDesktop.Back/PetDesktop.Back.csproj">
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Folder Include="Infraestructure\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Avalonia" Version="12.0.4" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.9" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        <PrivateAssets>all</PrivateAssets>
+      </PackageReference>
+      <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.9" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.9" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.9" />
+      <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.9" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.9" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.9" />
+      <PackageReference Include="SkiaSharp" Version="3.119.4" />
+    </ItemGroup>
+
+</Project>
+</file>
+
+</files>

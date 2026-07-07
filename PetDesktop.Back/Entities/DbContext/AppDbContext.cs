@@ -86,7 +86,7 @@ public class AppDbContext : DbContext
             builder.Property(s => s.AssociatedPet)
                 .IsRequired();
 
-            // Relación inversa: Mapea la FK física con ON DELETE CASCADE
+            // Relación inversa: Mapea la FK físicac con ON DELETE CASCADE
             builder.HasOne<Pet>()                             
                 .WithMany()                                   
                 .HasForeignKey(s => s.AssociatedPet)          

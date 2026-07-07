@@ -1,18 +1,38 @@
+using Microsoft.EntityFrameworkCore;
 using PetDesktop.Back.Entities;
 
 namespace PetDesktop.Back.Repositories.Pet;
 
 public class PetRepository : IPetRepository
 {
-    private readonly AppDbContext _context;
-    public Models.Pet Create(Models.Pet value)
+    private AppDbContext _context;
+    public PetRepository(AppDbContext context)
     {
-        throw new NotImplementedException();
+        _context = context;
     }
 
-    public Models.Pet Delete(string key)
+    public IEnumerable<Models.Pet> GetAll(int page, int pageSize)
     {
-        throw new NotImplementedException();
+        return _context.Pet
+            .AsNoTracking()
+            .OrderBy(p => p.Name)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+    }
+
+    public Models.Pet Create(Models.Pet value)
+    {
+        _context.Pet.Add(value);
+        _context.SaveChanges();
+        return value;
+    }
+
+    public Models.Pet Delete(Models.Pet value)
+    {
+        _context.Pet.Remove(value);
+        _context.SaveChanges();
+        return value;
     }
 
     public Models.Pet Update(string key)
