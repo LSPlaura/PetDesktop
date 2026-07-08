@@ -26,14 +26,15 @@ public class PetDesktopService
         Init(); 
     }
     
-    public void Init()
+    public async void Init()
     {
-        var defaultPet = Factories.PetFactory.CreateDefaultPet();
+        await Factories.SpriteSheetFactory.CreateAnimationsDefaultPetAsync(_spriteSheetManager);
+        var defaultPet = Factories.PetFactory.CreateDefaultPet(_spriteSheetManager);
         CreatePet(defaultPet);
     }
     public void CreatePet(Pet item)
     {
-        
+        _petRepository.Create(item);
     }
 
     public void DeletePet()
@@ -41,9 +42,9 @@ public class PetDesktopService
         
     }
 
-    public void GetPet()
+    public Models.Pet GetPet(string key)
     {
-        
+        return _petRepository.GetById(key);
     }
 
     public void GetAllPet()

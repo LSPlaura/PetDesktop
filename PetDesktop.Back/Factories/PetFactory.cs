@@ -1,25 +1,20 @@
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using PetDesktop.Back.Models;
+using PetDesktop.Back.Services.SpriteSheet;
 
 namespace PetDesktop.Back.Factories;
 
 public static class PetFactory
 {
-    private const string DefaultSpriteRoute = "avares://PetDesktop.UI/Assets/Sprites/pet_default.png";
-
-    public static Pet CreateDefaultPet()
+    private static string _defaultSpriteSheet = "DefaultRight";
+    public static Pet CreateDefaultPet(SpriteSheetService service)
     {
+        var spriteSheet = service.GetAll();
         return new Pet
         {
-            ActualAnimation = new SpriteSheet
-            {
-                Name = "Default_Idle",
-                Route = DefaultSpriteRoute,
-                FrameWidth = 64,
-                FrameHeight = 64,
-                AssociatedPet = "Mascota por defecto"
-            }
+            Name = "Pingu",
+            ActualAnimation = spriteSheet.FirstOrDefault(a => a.Name.Contains(_defaultSpriteSheet)),
         };
     }
 }

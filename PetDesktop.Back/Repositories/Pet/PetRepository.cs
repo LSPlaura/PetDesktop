@@ -42,7 +42,8 @@ public class PetRepository : IPetRepository
 
     public Models.Pet GetById(string key)
     {
-        throw new NotImplementedException();
+        if (string.IsNullOrEmpty(key)) return null;
+        return _context.Pet.FirstOrDefault(p => p.Name != null && p.Name.ToLower() == key.ToLower());
     }
 
     public bool Exists(string key)
