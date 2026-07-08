@@ -16,11 +16,11 @@ public static class Config
     public static string SpriteSheetFolder { get; } =
         Settings.GetValue<string>("SpriteSettings:SpriteSheetFolder") ?? "SpriteSheets";
 
-    public static string Name { get; } = Settings.GetValue<string>("AnimationName") ?? "Default_Idle";
+    public static string DefaultPetName { get; } = Settings.GetValue<string>("DefaultPet:Name") ?? "DefaultPet";
+    public static string DefaultSpriteSheetName { get; } = Settings.GetValue<string>("DefaultPet:InitialAnimation") ?? "Default_Animation";
 
-    public static string Route { get; }= Settings.GetValue<string>("Route") ??
-                                         "avares://PetDesktop.UI/Assets/SpriteSheet/WalkRight.png";
-    public static int FrameWidth { get; } = Settings.GetValue<int>("FrameWidth");
-    public static int FrameHeight { get; } = Settings.GetValue<int>("FrameHeight");
-    public static string AssociatedPet { get; } = Settings.GetValue<string>("Name") ?? "DefaultPet";
+    public static string DefaultPetSpritesRoute { get; }= Settings.GetValue<string>("DefaultPet:Route") ??
+                                                          "avares://PetDesktop.UI/Assets/DefaultPet";
+    public static int DefaultPetFrameWidth { get; } = Settings.GetValue<int>("DefaultPet:FrameWidth");
+    public static int DefaultPetFrameHeight { get; } = Settings.GetValue<int>("DefaultPet:FrameHeight");
 }

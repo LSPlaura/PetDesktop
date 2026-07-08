@@ -11,7 +11,7 @@ public static class SpriteSheetFactory
     {
         if (!Directory.Exists(DefaultSpritesRoute))
         {
-            Console.WriteLine($"[Factory] La ruta origen no existe: {DefaultSpritesRoute}");
+            //Console.WriteLine($"[Factory] La ruta origen no existe: {DefaultSpritesRoute}");
             return;
         }
         
@@ -37,20 +37,20 @@ public static class SpriteSheetFactory
                 
                 var spriteSheet = new SpriteSheet()
                 {
-                    Name = $"{nameAnimation}_DefaultPet",
-                    FrameHeight = 128,
-                    FrameWidth = 128,
+                    Name = $"{nameAnimation}_{Config.Config.DefaultPetName}",
+                    FrameHeight = Config.Config.DefaultPetFrameHeight,
+                    FrameWidth = Config.Config.DefaultPetFrameWidth,
                     Route = folder, 
-                    AssociatedPet = "DefaultPet"
+                    AssociatedPet = $"{Config.Config.DefaultPetName}"
                 };
                 
                 await service.CreateAsync(spriteSheet, imagesOpened);
                 
-                Console.WriteLine($"[Factory] SpriteSheet '{spriteSheet.Name}' creado con éxito.");
+                //Console.WriteLine($"[Factory] SpriteSheet '{spriteSheet.Name}' creado con éxito.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[Factory] Error al procesar la animación en {folder}: {ex.Message}");
+                //Console.WriteLine($"[Factory] Error al procesar la animación en {folder}: {ex.Message}");
             }
             finally
             {
