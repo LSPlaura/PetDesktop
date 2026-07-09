@@ -5,40 +5,39 @@ namespace PetDesktop.Back.Repositories.SpriteSheet;
 
 public class SpriteSheetRepository (AppDbContext context) : ISpriteSheetRepository
 {
-    
-    public IEnumerable<Models.SpriteSheet> GetAll(int page, int pageSize)
+    public async Task<IEnumerable<Models.SpriteSheet>> GetAllAsync(int page, int pageSize)
     {
-        return context.SpriteSheet
+        return await context.SpriteSheet
             .AsNoTracking()
             .OrderBy(p => p.Name)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .ToList();
+            .ToListAsync();
     }
 
-    public Models.SpriteSheet Create(Models.SpriteSheet value)
+    public async Task<Models.SpriteSheet> CreateAsync(Models.SpriteSheet value)
     {
         context.SpriteSheet.Add(value);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
         return value;
     }
 
-    public Models.SpriteSheet Delete(Models.SpriteSheet value)
+    public Task<Models.SpriteSheet> DeleteAsync(Models.SpriteSheet value)
     {
         throw new NotImplementedException();
     }
 
-    public Models.SpriteSheet Update(string key)
+    public Task<Models.SpriteSheet> UpdateAsync(string key)
     {
         throw new NotImplementedException();
     }
 
-    public Models.SpriteSheet GetById(string key)
+    public Task<Models.SpriteSheet> GetByIdAsync(string key)
     {
         throw new NotImplementedException();
     }
 
-    public bool Exists(string key)
+    public Task<bool> ExistsAsync(string key)
     {
         throw new NotImplementedException();
     }

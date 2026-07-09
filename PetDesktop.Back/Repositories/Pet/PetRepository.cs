@@ -3,50 +3,47 @@ using PetDesktop.Back.Entities;
 
 namespace PetDesktop.Back.Repositories.Pet;
 
-public class PetRepository : IPetRepository
+public class PetRepository(AppDbContext context) : IPetRepository
 {
-    private AppDbContext _context;
-    public PetRepository(AppDbContext context)
-    {
-        _context = context;
-    }
 
-    public IEnumerable<Models.Pet> GetAll(int page, int pageSize)
+    public async Task<IEnumerable<Models.Pet>> GetAllAsync(int page, int pageSize)
     {
-        return _context.Pet
+        return await context.Pet
             .AsNoTracking()
             .OrderBy(p => p.Name)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .ToList();
+            .ToListAsync();
     }
 
-    public Models.Pet Create(Models.Pet value)
+    public async Task<Models.Pet> CreateAsync(Models.Pet value)
     {
-        _context.Pet.Add(value);
-        _context.SaveChanges();
+        context.Pet.Add(value);
+        await context.SaveChangesAsync();
         return value;
     }
 
-    public Models.Pet Delete(Models.Pet value)
+    public async Task<Models.Pet> DeleteAsync(Models.Pet value)
     {
-        _context.Pet.Remove(value);
-        _context.SaveChanges();
+        context.Pet.Remove(value);
+        await context.SaveChangesAsync();
         return value;
     }
 
-    public Models.Pet Update(string key)
+    public Task<Models.Pet> UpdateAsync(string key)
     {
         throw new NotImplementedException();
     }
 
-    public Models.Pet GetById(string key)
+    public async Task<Models.Pet> GetByIdAsync(string key)
     {
-        if (string.IsNullOrEmpty(key)) return null;
-        return _context.Pet.FirstOrDefault(p => p.Name != null && p.Name.ToLower() == key.ToLower());
+        if (string.IsNullOrEmpty(key)) return null!;
+        
+        return await context.Pet
+            .FirstOrDefaultAsync(p => p.Name != null && p.Name.ToLower() == key.ToLower());
     }
 
-    public bool Exists(string key)
+    public Task<bool> ExistsAsync(string key)
     {
         throw new NotImplementedException();
     }

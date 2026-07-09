@@ -11,7 +11,7 @@ public class SpriteSheetService(SpriteSheetGenerator spriteSheetGenerator, Sprit
       {
          using var spriteSheetCreated = await spriteSheetGenerator.CreateSpriteSheetAsync(item.FrameWidth, item.FrameHeight, pngImages);
          await spriteSheetGenerator.SaveSpriteSheet(item.Name, spriteSheetCreated);
-         return spriteSheetRepository.Create(item);
+         return await spriteSheetRepository.CreateAsync(item);
       }
       catch(Exception ex)
       {
@@ -19,8 +19,8 @@ public class SpriteSheetService(SpriteSheetGenerator spriteSheetGenerator, Sprit
       }
    }
 
-   public IEnumerable<Models.SpriteSheet> GetAll(int page = 1, int pageSize = 20)
+   public async Task<IEnumerable<Models.SpriteSheet>> GetAll(int page = 1, int pageSize = 20)
    {
-      return spriteSheetRepository.GetAll(page, pageSize);
+      return await spriteSheetRepository.GetAllAsync(page, pageSize);
    }
 }

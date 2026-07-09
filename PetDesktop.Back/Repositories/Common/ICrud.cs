@@ -1,12 +1,11 @@
-namespace PetDesktop.Back.Repositories;
+namespace PetDesktop.Back.Repositories.Common;
 
 public interface ICrud<TKey, TValue>
 {
-    IEnumerable<TValue> GetAll(int page, int pageSize);
-    TValue Create(TValue value);
-    TValue Delete(TValue value);
-    TValue Update(TKey key);
-    TValue GetById(TKey key);
-    bool Exists(TKey key);
-
+    Task<IEnumerable<TValue>> GetAllAsync(int page, int pageSize);
+    Task<TValue> CreateAsync(TValue value);
+    Task<TValue> DeleteAsync(TValue value);
+    Task<TValue> UpdateAsync(TKey key);
+    Task<TValue> GetByIdAsync(TKey key);
+    Task<bool> ExistsAsync(TKey key);
 }
