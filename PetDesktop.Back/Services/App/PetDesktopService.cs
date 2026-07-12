@@ -1,7 +1,11 @@
+using CSharpFunctionalExtensions;
+using PetDesktop.Back.Errors.DefaultPetErrors;
+using PetDesktop.Back.Errors.PetError;
 using PetDesktop.Back.Models;
 using PetDesktop.Back.Repositories.Pet;
 using PetDesktop.Back.Repositories.SpriteSheet;
 using PetDesktop.Back.Services.SpriteSheet;
+using ILogger = Serilog.ILogger;
 
 namespace PetDesktop.Back.Services.App;
 
@@ -11,6 +15,8 @@ public class PetDesktopService
     private readonly SpriteSheetGenerator _spriteSheetGenerator;
     private readonly ISpriteSheetRepository _spriteSheetRepository;
     private readonly IPetRepository _petRepository;
+    
+    private static readonly ILogger Log = Serilog.Log.ForContext<PetDesktopService>();
     
     public PetDesktopService(
         SpriteSheetService spriteSheetManager, 
@@ -24,13 +30,22 @@ public class PetDesktopService
         _petRepository = petRepository;
     }
     
-    public async Task InitAsync()
+    public async Task<Result<bool, DefaultPetError>> InitAsync()
     {
-        await Factories.SpriteSheetFactory.CreateAnimationsDefaultPetAsync(_spriteSheetManager);
+        Log.Debug("");
+        var resultSpriteSheets = await Factories.SpriteSheetFactory.CreateAnimationsDefaultPetAsync(_spriteSheetManager);
+        if (resultSpriteSheets.IsFailure)
+            return Result.Failure<bool, DefaultPetError>(resultSpriteSheets.Error);
         
         var defaultPet = await Factories.PetFactory.CreateDefaultPet(_spriteSheetManager);
+        if(defaultPet.IsFailure)
+            return Result.Failure<bool, DefaultPetError>(defaultPet.Error);
         
-        await CreatePetAsync(defaultPet);
+        var resultPet = await CreatePetAsync(defaultPet.Value);
+        if (resultPet.IsFailure)
+            return  Result.Failure<bool, DefaultPetError>(new DefaultPetError.DefaultPetInicializationError(resultPet.Error.Message));
+
+        return Result.Success<bool, DefaultPetError>(true);
     }
     
     public async Task<IEnumerable<Models.Pet>> GetAllPetAsync(int page = 1, int pageSize = 20)
@@ -38,9 +53,17 @@ public class PetDesktopService
         return await _petRepository.GetAllAsync(page, pageSize);
     }
     
-    public async Task CreatePetAsync(Pet item)
+    public async Task<Result<bool,PetError>> CreatePetAsync(Pet item)
     {
-        await _petRepository.CreateAsync(item);
+        try
+        {
+            await _petRepository.CreateAsync(item);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure<bool, PetError>(new PetError.PetDbError($"Error in the Database while saving a new Pet: {ex.Message}"));
+        }
     }
 
     public async Task DeletePetAsync(Models.Pet item)

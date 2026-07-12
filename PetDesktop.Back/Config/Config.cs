@@ -14,7 +14,7 @@ public static class Config
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "PetDesktop", SpriteSheetFolder);
 
     public static string SpriteSheetFolder { get; } =
-        Settings.GetValue<string>("SpriteSettings:SpriteSheetFolder") ?? "SpriteSheets";
+        Settings.GetValue<string>("PetSettings:SpriteSheetSettings:SpriteSheetFolder") ?? "SpriteSheets";
 
     public static string DefaultPetName { get; } = Settings.GetValue<string>("DefaultPet:Name") ?? "DefaultPet";
     public static string DefaultSpriteSheetName { get; } = Settings.GetValue<string>("DefaultPet:InitialAnimation") ?? "Default_Animation";

@@ -1,21 +1,31 @@
-using PetDesktop.Back.Repositories;
+using CSharpFunctionalExtensions;
+using PetDesktop.Back.Errors.SpriteSheetErrors;
 using PetDesktop.Back.Repositories.SpriteSheet;
+using Serilog;
 
 namespace PetDesktop.Back.Services.SpriteSheet;
 
 public class SpriteSheetService(SpriteSheetGenerator spriteSheetGenerator, SpriteSheetRepository spriteSheetRepository)
 {
-   public async Task<Models.SpriteSheet> CreateAsync(Models.SpriteSheet item, List<Stream> pngImages)
+   public async Task<Result<Models.SpriteSheet, SpriteSheetError>> CreateAsync(Models.SpriteSheet item, List<Stream> pngImages)
    {
       try
       {
+         if (pngImages.Count == 0)
+         {
+            Log.Warning("Intento de generación de SpriteSheet rechazado: Parámetros inválidos.");
+            return Result.Failure<Models.SpriteSheet, SpriteSheetError>(new SpriteSheetError.SpriteSheetGeneratorError("Los datos del SpriteSheet o la lista de imágenes no pueden estar vacíos."));
+         }
          using var spriteSheetCreated = await spriteSheetGenerator.CreateSpriteSheetAsync(item.FrameWidth, item.FrameHeight, pngImages);
          await spriteSheetGenerator.SaveSpriteSheet(item.Name, spriteSheetCreated);
          return await spriteSheetRepository.CreateAsync(item);
       }
-      catch(Exception ex)
+      catch (Exception ex)
       {
-         throw new Exception();
+         Log.Error(ex, "Error crítico al generar SpriteSheet: {Message}", ex.Message);
+         
+         return Result.Failure<Models.SpriteSheet, SpriteSheetError>(
+            new SpriteSheetError.SpriteSheetGeneratorError($"Error en la generación del spriteSheet: {ex.Message}"));
       }
    }
 

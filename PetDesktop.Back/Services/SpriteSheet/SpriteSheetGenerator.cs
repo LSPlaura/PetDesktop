@@ -19,9 +19,6 @@ public class SpriteSheetGenerator
     }
     public async Task<Stream> CreateSpriteSheetAsync(int frameWidth, int frameHeight, List<Stream> pngStreams)
     {
-        if (pngStreams == null || pngStreams.Count == 0)
-            throw new ArgumentException("La lista de imágenes no puede estar vacía.");
-
         int totalFrames = pngStreams.Count;
         int canvasWidth = totalFrames * frameWidth;
 
