@@ -3,7 +3,7 @@ using PetDesktop.Back.Entities;
 
 namespace PetDesktop.Back.Repositories.SpriteSheet;
 
-public class SpriteSheetRepository (AppDbContext context) : ISpriteSheetRepository
+public abstract class SpriteSheetRepository (AppDbContext context) : ISpriteSheetRepository
 {
     public async Task<IEnumerable<Models.SpriteSheet>> GetAllAsync(int page, int pageSize)
     {

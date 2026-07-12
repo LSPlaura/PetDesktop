@@ -30,22 +30,50 @@ public class PetDesktopService
         _petRepository = petRepository;
     }
     
-    public async Task<Result<bool, DefaultPetError>> InitAsync()
-    {
-        Log.Debug("");
-        var resultSpriteSheets = await Factories.SpriteSheetFactory.CreateAnimationsDefaultPetAsync(_spriteSheetManager);
-        if (resultSpriteSheets.IsFailure)
-            return Result.Failure<bool, DefaultPetError>(resultSpriteSheets.Error);
-        
-        var defaultPet = await Factories.PetFactory.CreateDefaultPet(_spriteSheetManager);
-        if(defaultPet.IsFailure)
-            return Result.Failure<bool, DefaultPetError>(defaultPet.Error);
-        
-        var resultPet = await CreatePetAsync(defaultPet.Value);
-        if (resultPet.IsFailure)
-            return  Result.Failure<bool, DefaultPetError>(new DefaultPetError.DefaultPetInicializationError(resultPet.Error.Message));
+   public async Task<Result<bool, DefaultPetError>> ProvisionDefaultPetAsync()
+   {
+       Log.Information("Starting first-time setup to create the default pet...");
 
-        return Result.Success<bool, DefaultPetError>(true);
+       var resultSpriteSheets = await Factories.SpriteSheetFactory.CreateAnimationsDefaultPetAsync(_spriteSheetManager);
+       if (resultSpriteSheets.IsFailure)
+       {
+           Log.Error("Failed to generate default pet spritesheets. Setup aborted. Error: {ErrorMessage}", resultSpriteSheets.Error.Message);
+           await DeleteAll();
+           return Result.Failure<bool, DefaultPetError>(resultSpriteSheets.Error);
+       }
+
+       var defaultPet = await Factories.PetFactory.CreateDefaultPet(_spriteSheetManager);
+       if (defaultPet.IsFailure)
+       { 
+           Log.Error("Failed to build the default pet instance. Setup aborted. Error: {ErrorMessage}", defaultPet.Error.Message);
+           await DeleteAll();
+           return Result.Failure<bool, DefaultPetError>(defaultPet.Error);
+       }
+
+       var resultPet = await CreatePetAsync(defaultPet.Value);
+       if (resultPet.IsFailure)
+       {
+           Log.Error("Failed to save the default pet into the database. Setup aborted. Error: {ErrorMessage}", resultPet.Error.Message);
+           await DeleteAll();
+           return Result.Failure<bool, DefaultPetError>(new DefaultPetError.DefaultPetInicializationError(resultPet.Error.Message));
+       }
+
+       Log.Information("Default pet successfully created and registered: {PetName}", defaultPet.Value.Name);
+       return Result.Success<bool, DefaultPetError>(true);
+    }
+
+    public async Task<Result<bool, PetError>> DeleteAll()
+    { 
+        Log.Warning("A failure occurred during setup. Rolling back and cleaning up existing database entries...");
+        try
+        {
+            return await _petRepository.DeleteAllAsync(); 
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Critical database error encountered during the rollback operation.");
+            return Result.Failure<bool, PetError>(new PetError.PetDbError($"Error in the database while trying to delete all Pets: {ex.Message}"));
+        }
     }
     
     public async Task<IEnumerable<Models.Pet>> GetAllPetAsync(int page = 1, int pageSize = 20)
