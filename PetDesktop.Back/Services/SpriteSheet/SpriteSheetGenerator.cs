@@ -61,9 +61,13 @@ public class SpriteSheetGenerator
     {
         string destinationRoute = Path.Combine(folderRoute, fileName);
         
+        if (spriteSheetStream.CanSeek) spriteSheetStream.Position = 0;
+        
         using (var fileStream = new FileStream(destinationRoute, FileMode.Create, FileAccess.Write, FileShare.None, 4096, useAsync: true))
         {
             await spriteSheetStream.CopyToAsync(fileStream);
         }
+        
+        if (spriteSheetStream.CanSeek) spriteSheetStream.Position = 0;
     }
 }   
