@@ -39,11 +39,20 @@ public static class SpriteSheetFactory
             {
                 foreach (var fileRoute in routeFiles)
                 {
-                    FileStream image = File.OpenRead(fileRoute);
-                    imagesOpened.Add(image);
+                    FileStream? image = null;
+                    try
+                    {
+                        image = File.OpenRead(fileRoute);
+                        imagesOpened.Add(image);
+                    }
+                    catch(Exception ex)
+                    {
+                        if (image != null) await image.DisposeAsync();
+                        return Result.Failure<bool, DefaultPetError>(
+                            new DefaultPetError.DefaultSpriteSheetInicializationError($"Error: {ex.Message}"));
+                    }
                 }
                 
-                //folder está mal
                 var spriteSheet = new SpriteSheet(nameAnimation, Path.Combine(_spriteSheetsRoute, nameAnimation), Config.Config.DefaultPetFrameWidth,
                     Config.Config.DefaultPetFrameHeight, Config.Config.DefaultPetName);
 
