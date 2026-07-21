@@ -7,7 +7,8 @@ namespace PetDesktop.Back.Services.SpriteSheet;
 
 public class SpriteSheetService(SpriteSheetGenerator spriteSheetGenerator, SpriteSheetRepository spriteSheetRepository)
 {
-   public async Task<Result<Models.SpriteSheet, SpriteSheetError>> CreateAsync(Models.SpriteSheet item, List<Stream> pngImages)
+
+   public async Task<Result<Models.SpriteSheet, SpriteSheetError>> CreateAsync(string folderRoute, Models.SpriteSheet item, List<Stream> pngImages)
    {
       try
       {
@@ -17,7 +18,7 @@ public class SpriteSheetService(SpriteSheetGenerator spriteSheetGenerator, Sprit
             return Result.Failure<Models.SpriteSheet, SpriteSheetError>(new SpriteSheetError.SpriteSheetGeneratorError("Los datos del SpriteSheet o la lista de imágenes no pueden estar vacíos."));
          }
          using var spriteSheetCreated = await spriteSheetGenerator.CreateSpriteSheetAsync(item.FrameWidth, item.FrameHeight, pngImages);
-         await spriteSheetGenerator.SaveSpriteSheet(item.Name, spriteSheetCreated);
+         await spriteSheetGenerator.SaveSpriteSheet(item.Name, folderRoute, spriteSheetCreated);
          return await spriteSheetRepository.CreateAsync(item);
       }
       catch (Exception ex)
@@ -33,4 +34,22 @@ public class SpriteSheetService(SpriteSheetGenerator spriteSheetGenerator, Sprit
    {
       return await spriteSheetRepository.GetAllAsync(page, pageSize);
    }
+   
+   // public void DeletePhysicalAssets(string petName)
+   // {
+   //    try
+   //    {
+   //       string petFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", petName); 
+   //
+   //       if (Directory.Exists(petFolderPath))
+   //       {
+   //          Log.Information("Deleting physical assets folder for {PetName} at: {Path}", petName, petFolderPath);
+   //          Directory.Delete(petFolderPath, recursive: true); 
+   //       }
+   //    }
+   //    catch (Exception ex)
+   //    {
+   //       Log.Error(ex, "Failed to delete physical assets folder for {PetName} during cleanup.", petName);
+   //    }
+   // }
 }

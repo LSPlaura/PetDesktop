@@ -36,6 +36,8 @@ public class AppDbContext : DbContext
         {
             builder.ToTable("Pet");
             
+            builder.Ignore(p => p.ActualAnimation);
+            
             // Clave Primaria (Obligatoria por defecto)
             builder.HasKey(p => p.Name);
             builder.Property(p => p.Name)
@@ -53,14 +55,6 @@ public class AppDbContext : DbContext
                     v => v.ToString("c"),   
                     v => TimeSpan.Parse(v)
                 );
-
-            // Relación 1 a 1 (Opcional): Una Pet tiene una ActualAnimation (SpriteSheet) o ninguna.
-            // Si la Pet se borra, NO queremos borrar el SpriteSheet general (por eso No-Cascade aquí).
-            builder.HasOne(p => p.ActualAnimation)
-                .WithOne()
-                .HasForeignKey<Pet>("ActualAnimationName") // Crea una columna FK oculta en Pet que permite NULL
-                .IsRequired(false)                         // La animación por defecto es opcional (nula)
-                .OnDelete(DeleteBehavior.SetNull);         // Si se borra el SpriteSheet, la Pet queda con animación en null
         });
 
         // 2. CONFIGURACIÓN EXPLÍCITA DE SPRITESHEET
@@ -69,7 +63,7 @@ public class AppDbContext : DbContext
             builder.ToTable("SpriteSheet");
             
             // Clave Primaria
-            builder.HasKey(s => s.Name);
+            builder.HasKey(s => new { s.AssociatedPet, s.Name });
             builder.Property(s => s.Name)
                 .IsRequired();
 

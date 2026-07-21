@@ -4,19 +4,6 @@ namespace PetDesktop.Back.Services.SpriteSheet;
 
 public class SpriteSheetGenerator
 {
-    private string _folderRoute =
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "PetDesktop",
-            Config.Config.SpriteSheetFolder);
-    public SpriteSheetGenerator()
-    {
-        Init();
-    }
-
-    public void Init()
-    {
-        if (!Directory.Exists(_folderRoute)) 
-            Directory.CreateDirectory(_folderRoute);
-    }
     public async Task<Stream> CreateSpriteSheetAsync(int frameWidth, int frameHeight, List<Stream> pngStreams)
     {
         int totalFrames = pngStreams.Count;
@@ -70,15 +57,13 @@ public class SpriteSheetGenerator
         return outputStream;
     }
     
-    public async Task SaveSpriteSheet(string name, Stream spriteSheetStream)
+    public async Task SaveSpriteSheet(string fileName, string folderRoute, Stream spriteSheetStream)
     {
-        string fileName = $"{name}.png";
-
-        string destinationRoute = Path.Combine(_folderRoute, fileName);
+        string destinationRoute = Path.Combine(folderRoute, fileName);
         
         using (var fileStream = new FileStream(destinationRoute, FileMode.Create, FileAccess.Write, FileShare.None, 4096, useAsync: true))
         {
             await spriteSheetStream.CopyToAsync(fileStream);
         }
     }
-}
+}   

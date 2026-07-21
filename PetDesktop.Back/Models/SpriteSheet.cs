@@ -7,4 +7,14 @@ public class SpriteSheet
     public int FrameWidth { get; init; }
     public int FrameHeight { get; init; }
     public string AssociatedPet { get; set; } = string.Empty;
-}
+
+    public SpriteSheet(string name, string route, int frameWidth, int frameHeight, string associatedPet)
+    {
+        Name = name;
+        Route = route;
+        FrameHeight = frameHeight;
+        FrameWidth = frameWidth;
+        AssociatedPet = associatedPet;
+    }
+    private SpriteSheet() { }
+} 

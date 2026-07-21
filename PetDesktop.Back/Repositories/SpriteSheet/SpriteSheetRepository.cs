@@ -9,7 +9,7 @@ public abstract class SpriteSheetRepository (AppDbContext context) : ISpriteShee
     {
         return await context.SpriteSheet
             .AsNoTracking()
-            .OrderBy(p => p.Name)
+            .OrderBy(p => p.AssociatedPet)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();

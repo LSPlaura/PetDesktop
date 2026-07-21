@@ -1,6 +1,5 @@
 using CSharpFunctionalExtensions;
 using PetDesktop.Back.Errors.DefaultPetErrors;
-using PetDesktop.Back.Errors.SpriteSheetErrors;
 using PetDesktop.Back.Models;
 using PetDesktop.Back.Services.SpriteSheet;
 using Serilog;
@@ -10,19 +9,21 @@ namespace PetDesktop.Back.Factories;
 
 public static class SpriteSheetFactory
 {
-    private static readonly string DefaultSpritesRoute = Path.Combine(AppContext.BaseDirectory, "Assets", "Sprites", "DefaultPet");
+    private static readonly string _defaultSpritesRoute = Path.Combine(AppContext.BaseDirectory, "Assets", "Sprites", "DefaultPet");
+    private static readonly string _spriteSheetsRoute =
+        Path.Combine(Config.Config.SpriteSheetRoute, Config.Config.DefaultPetName);
     private static readonly ILogger _logger = Log.ForContext(typeof(SpriteSheetFactory));
 
     public static async Task<Result<bool, DefaultPetError>> CreateAnimationsDefaultPetAsync(SpriteSheetService service)
     {
-        if (!Directory.Exists(DefaultSpritesRoute))
+        if (!Directory.Exists(_defaultSpritesRoute))
         {
-            //Console.WriteLine($"[Factory] La ruta origen no existe: {DefaultSpritesRoute}");
+            //Console.WriteLine($"[Factory] La ruta origen no existe: {_defaultSpritesRoute}");
             return Result.Failure<bool, DefaultPetError>(
                 new DefaultPetError.DefaultSpriteSheetInicializationError.AssetsFolderNotFound("Assets file not found"));
         }
 
-        var foldersRoute = Directory.GetDirectories(DefaultSpritesRoute);
+        var foldersRoute = Directory.GetDirectories(_defaultSpritesRoute);
 
         foreach (var folder in foldersRoute)
         {
@@ -41,17 +42,12 @@ public static class SpriteSheetFactory
                     FileStream image = File.OpenRead(fileRoute);
                     imagesOpened.Add(image);
                 }
+                
+                //folder está mal
+                var spriteSheet = new SpriteSheet(nameAnimation, Path.Combine(_spriteSheetsRoute, nameAnimation), Config.Config.DefaultPetFrameWidth,
+                    Config.Config.DefaultPetFrameHeight, Config.Config.DefaultPetName);
 
-                var spriteSheet = new SpriteSheet() 
-                {
-                    Name = $"{nameAnimation}_{Config.Config.DefaultPetName}",
-                    FrameHeight = Config.Config.DefaultPetFrameHeight,
-                    FrameWidth = Config.Config.DefaultPetFrameWidth,
-                    Route = folder,
-                    AssociatedPet = $"{Config.Config.DefaultPetName}"
-                };
-
-                var result = await service.CreateAsync(spriteSheet, imagesOpened);
+                var result = await service.CreateAsync(_spriteSheetsRoute, spriteSheet, imagesOpened);
                 if (result.IsFailure) return Result.Failure<bool, DefaultPetError>(new DefaultPetError.DefaultSpriteSheetInicializationError($"Error while creating the spriteSheets: {result.Error.Message}"));
                 //Console.WriteLine($"[Factory] SpriteSheet '{spriteSheet.Name}' creado con éxito.");
             }
@@ -63,7 +59,7 @@ public static class SpriteSheetFactory
             }
             finally
             {
-                foreach (var stream in imagesOpened) stream?.Dispose();
+                foreach (var stream in imagesOpened) await stream.DisposeAsync();
             }
         }
         return Result.Success<bool, DefaultPetError>(true);
