@@ -53,7 +53,7 @@ public static class SpriteSheetFactory
                     }
                 }
                 
-                var spriteSheet = new SpriteSheet(nameAnimation, Path.Combine(_spriteSheetsRoute, Config.Config.DefaultPetName, nameAnimation), Config.Config.DefaultPetFrameWidth,
+                var spriteSheet = new SpriteSheet(nameAnimation, Path.Combine(_spriteSheetsRoute, nameAnimation), Config.Config.DefaultPetFrameWidth,
                     Config.Config.DefaultPetFrameHeight, Config.Config.DefaultPetName);
 
                 var result = await service.CreateAsync(_spriteSheetsRoute, spriteSheet, imagesOpened);
