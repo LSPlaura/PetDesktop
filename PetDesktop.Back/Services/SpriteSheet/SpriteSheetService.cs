@@ -34,22 +34,4 @@ public class SpriteSheetService(SpriteSheetGenerator spriteSheetGenerator, Sprit
    {
       return await spriteSheetRepository.GetAllAsync(page, pageSize);
    }
-   
-   // public void DeletePhysicalAssets(string petName)
-   // {
-   //    try
-   //    {
-   //       string petFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", petName); 
-   //
-   //       if (Directory.Exists(petFolderPath))
-   //       {
-   //          Log.Information("Deleting physical assets folder for {PetName} at: {Path}", petName, petFolderPath);
-   //          Directory.Delete(petFolderPath, recursive: true); 
-   //       }
-   //    }
-   //    catch (Exception ex)
-   //    {
-   //       Log.Error(ex, "Failed to delete physical assets folder for {PetName} during cleanup.", petName);
-   //    }
-   // }
 }

@@ -9,21 +9,21 @@ namespace PetDesktop.Back.Factories;
 
 public static class SpriteSheetFactory
 {
-    private static readonly string _defaultSpritesRoute = Path.Combine(AppContext.BaseDirectory, "Assets", "Sprites", "DefaultPet");
+    //private static readonly string _defaultSpritesRoute = Path.Combine(AppContext.BaseDirectory, "Assets", "Sprites", "DefaultPet");
     private static readonly string _spriteSheetsRoute =
         Path.Combine(Config.Config.SpriteSheetRoute, Config.Config.DefaultPetName);
     private static readonly ILogger _logger = Log.ForContext(typeof(SpriteSheetFactory));
 
     public static async Task<Result<bool, DefaultPetError>> CreateAnimationsDefaultPetAsync(SpriteSheetService service)
     {
-        if (!Directory.Exists(_defaultSpritesRoute))
+        if (!Directory.Exists(Config.Config.DefaultPetSpritesRoute))
         {
             //Console.WriteLine($"[Factory] La ruta origen no existe: {_defaultSpritesRoute}");
             return Result.Failure<bool, DefaultPetError>(
                 new DefaultPetError.DefaultSpriteSheetInicializationError.AssetsFolderNotFound("Assets file not found"));
         }
 
-        var foldersRoute = Directory.GetDirectories(_defaultSpritesRoute);
+        var foldersRoute = Directory.GetDirectories(Config.Config.DefaultPetSpritesRoute);
 
         foreach (var folder in foldersRoute)
         {
@@ -53,7 +53,7 @@ public static class SpriteSheetFactory
                     }
                 }
                 
-                var spriteSheet = new SpriteSheet(nameAnimation, Path.Combine(_spriteSheetsRoute, nameAnimation), Config.Config.DefaultPetFrameWidth,
+                var spriteSheet = new SpriteSheet(nameAnimation, Path.Combine(_spriteSheetsRoute, Config.Config.DefaultPetName, nameAnimation), Config.Config.DefaultPetFrameWidth,
                     Config.Config.DefaultPetFrameHeight, Config.Config.DefaultPetName);
 
                 var result = await service.CreateAsync(_spriteSheetsRoute, spriteSheet, imagesOpened);

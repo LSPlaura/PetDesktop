@@ -36,12 +36,12 @@ public class PetRepository(AppDbContext context) : IPetRepository
         throw new NotImplementedException();
     }
 
-    public async Task<Models.Pet> GetByIdAsync(string key)
+    public async Task<Models.Pet?> GetByIdAsync(string key)
     {
-        if (string.IsNullOrEmpty(key)) return null!;
+        if (string.IsNullOrEmpty(key)) return null;
         
         return await context.Pet
-            .FirstOrDefaultAsync(p => p.Name != null && p.Name.ToLower() == key.ToLower());
+            .FirstOrDefaultAsync(p => p.Name.ToLower() == key.ToLower());
     }
 
     public Task<bool> ExistsAsync(string key)

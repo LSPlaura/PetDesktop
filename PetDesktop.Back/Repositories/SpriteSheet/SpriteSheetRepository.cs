@@ -22,19 +22,40 @@ public abstract class SpriteSheetRepository (AppDbContext context) : ISpriteShee
         return value;
     }
 
-    public Task<Models.SpriteSheet> DeleteAsync(Models.SpriteSheet value)
+    public async Task<Models.SpriteSheet> DeleteAsync(Models.SpriteSheet value)
     {
-        throw new NotImplementedException();
+        context.SpriteSheet.Remove(value);
+        await context.SaveChangesAsync();
+        return value;
     }
+    
+    // public async Task DeleteRangeAsync(string petName)
+    // {
+    //     var spriteSheet = await GetAllAssociatedPet(key);
+    //     context.SpriteSheet.Remove(spriteSheet);
+    //     await context.SaveChangesAsync();
+    //     return spriteSheet;
+    // }
+    //
+    // public async Task<IEnumerable<Models.SpriteSheet>> GetAllAssociatedPet(string petName)
+    // {
+    //     var spriteSheet = await GetByIdAsync(key);
+    //     context.SpriteSheet.Remove(spriteSheet);
+    //     await context.SaveChangesAsync();
+    //     return spriteSheet;
+    // }
 
     public Task<Models.SpriteSheet> UpdateAsync(string key)
     {
         throw new NotImplementedException();
     }
 
-    public Task<Models.SpriteSheet> GetByIdAsync(string key)
+    public async Task<Models.SpriteSheet?> GetByIdAsync(string key)
     {
-        throw new NotImplementedException();
+        if (string.IsNullOrEmpty(key)) return null;
+        
+        return await context.SpriteSheet
+            .FirstOrDefaultAsync(p => p.Name.ToLower() == key.ToLower());
     }
 
     public Task<bool> ExistsAsync(string key)

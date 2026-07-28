@@ -14,25 +14,38 @@ public class PetService(IPetRepository petRepository)
         return await petRepository.GetAllAsync(page, pageSize);
     }
     
-    public async Task<Result<bool,PetError>> CreateAsync(Models.Pet item)
+    public async Task<Result<bool, PetError>> CreateAsync(Models.Pet item)
     {
         try
         {
             await petRepository.CreateAsync(item);
-            return true;
+            return Result.Success<bool, PetError>(true);
         }
         catch (Exception ex)
         {
             return Result.Failure<bool, PetError>(new PetError.PetDbError($"Error in the Database while saving a new Pet: {ex.Message}"));
         }
     }
-    
-    public async Task DeleteAsync(Models.Pet item)
+
+    public async Task<Result<Models.Pet, PetError>> DeleteAsync(string key)
     {
-        await petRepository.DeleteAsync(item);
+        Log.Information("Request received to clear all pet records from the database.");
+        try
+        {
+            var result = await GetById(key);
+            if(result != null) return await petRepository.DeleteAsync(result);
+            return Result.Failure<Models.Pet, PetError>(
+                new PetError.MissingPetError($"Pet not found in the database:"));
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Database infrastructure failed while attempting to delete all pets.");
+            return Result.Failure<Models.Pet, PetError>(
+                new PetError.PetDbError($"Error in the database: {ex.Message}"));
+        }
     }
-    
-    public async Task<Models.Pet> GetById(string key)
+
+    public async Task<Models.Pet?> GetById(string key)
     {
         return await petRepository.GetByIdAsync(key);
     }

@@ -1,3 +1,5 @@
+using CSharpFunctionalExtensions;
+using PetDesktop.Back.Errors.SpriteSheetErrors;
 using SkiaSharp;
 
 namespace PetDesktop.Back.Services.SpriteSheet;
@@ -70,4 +72,26 @@ public class SpriteSheetGenerator
         
         if (spriteSheetStream.CanSeek) spriteSheetStream.Position = 0;
     }
-}   
+
+    public Result<bool, SpriteSheetError> DeleteSpriteSheetRange(string petName)
+    {
+        var root = Path.GetFullPath(Config.Config.SpriteSheetRoute);
+        var destinated = Path.GetFullPath(Path.Combine(root, petName));
+
+        if (!destinated.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+            return Result.Failure<bool, SpriteSheetError>(new SpriteSheetError.SpriteSheetDeleteError($"Root '{destinated} invalid'"));
+
+        if (Directory.Exists(destinated))
+        {
+            try
+            {
+                Directory.Delete(destinated, recursive: true);
+            }
+            catch (Exception ex)
+            {
+                return Result.Failure<bool, SpriteSheetError>(new SpriteSheetError.SpriteSheetDeleteError($"Delete method failed: {ex.Message}"));
+            }
+        }
+        return Result.Success<bool, SpriteSheetError>(true);
+    }
+}

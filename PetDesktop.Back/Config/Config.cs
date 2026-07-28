@@ -20,7 +20,7 @@ public static class Config
     public static string DefaultSpriteSheetName { get; } = Settings.GetValue<string>("DefaultPet:InitialAnimation") ?? "Default_Animation";
 
     public static string DefaultPetSpritesRoute { get; }= Settings.GetValue<string>("DefaultPet:Route") ??
-                                                          "avares://PetDesktop.UI/Assets/DefaultPet";
+                                                          "avares://PetDesktop.App/Assets/DefaultPet";
     public static int DefaultPetFrameWidth { get; } = Settings.GetValue<int>("DefaultPet:FrameWidth");
     public static int DefaultPetFrameHeight { get; } = Settings.GetValue<int>("DefaultPet:FrameHeight");
 }
