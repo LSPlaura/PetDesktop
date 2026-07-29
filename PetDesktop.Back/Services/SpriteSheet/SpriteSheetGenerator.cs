@@ -61,7 +61,7 @@ public class SpriteSheetGenerator
     
     public async Task SaveSpriteSheet(string fileName, string folderRoute, Stream spriteSheetStream)
     {
-        string destinationRoute = Path.Combine(folderRoute, fileName);
+        string destinationRoute = Path.Combine(folderRoute, fileName + ".png");
         
         if (spriteSheetStream.CanSeek) spriteSheetStream.Position = 0;
         
