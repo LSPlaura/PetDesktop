@@ -5,11 +5,13 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CSharpFunctionalExtensions;
 using FluentResults;
+using PetDesktop.App.Enums;
 using PetDesktop.App.Views;
 using PetDesktop.Back.Config;
 using PetDesktop.Back.Errors.DefaultPetErrors;
 using PetDesktop.Back.Models;
 using PetDesktop.Back.Services.Pet;
+using PetDesktop.Back.Services.SpriteSheet;
 
 namespace PetDesktop.App.ViewModels;
 
@@ -17,8 +19,11 @@ public partial class MainWindowViewModel : ObservableObject
 {
     private PetCreationOrchestrator _orchestrator;
     private PetService _petService;
+    private SpriteSheetService _spriteSheetService;
     [ObservableProperty]
     private Pet _actualPet;
+    [ObservableProperty]
+    private MovementDirection _petDirection = MovementDirection.Right;
     public MainWindowViewModel(PetCreationOrchestrator orchestrator, PetService petService)
     {
         _orchestrator = orchestrator;
@@ -57,4 +62,25 @@ public partial class MainWindowViewModel : ObservableObject
 
         ActualPet = pet;
     }
+    
+    partial void OnPetDirectionChanged(MovementDirection value)
+    {
+        switch (value)
+        {
+            case MovementDirection.Right:
+                break;
+            case MovementDirection.Left:
+                break;
+            case MovementDirection.Up:
+                break;
+            case MovementDirection.Down:
+                break;
+        }
+    }
+
+    // private void MoveRight()
+    // {
+    //     var spriteSheet = _spriteSheetService.GetById("Right", _actualPet.Name);    
+    // }
+    
 }
