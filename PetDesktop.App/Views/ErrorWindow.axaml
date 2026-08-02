@@ -1,0 +1,18 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="PetDesktop.App.Views.ErrorWindow"
+        Title="Error"
+        Width="350" Height="160"
+        WindowStartupLocation="CenterScreen"
+        CanResize="False">
+
+    <StackPanel Margin="20" Spacing="15" VerticalAlignment="Center">
+        <TextBlock x:Name="ErrorText" 
+                   TextAlignment="Center" 
+                   TextWrapping="Wrap"/>
+        
+        <Button Content="Aceptar" 
+                HorizontalAlignment="Center" 
+                Click="OnAcceptClick"/>
+    </StackPanel>
+</Window>
