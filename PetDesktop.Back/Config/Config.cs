@@ -7,7 +7,7 @@ public static class Config
 {
     public static readonly IConfigurationRoot Settings = new ConfigurationBuilder()
         .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-        .AddJsonFile("appsettings.json", false, true)
+        .AddJsonFile("appSettings.json", false, true)
         .Build();
 
     public static string SpriteSheetFolder { get; } =

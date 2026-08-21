@@ -23,7 +23,7 @@
             <!-- "Escucha cuando la ventana termine de cargarse en pantalla" -->
             <EventTriggerBehavior EventName="Loaded">
                 <!-- "En cuanto se cargue, pulsa/ejecuta este comando" -->
-                <InvokeCommandAction Command="{Binding CreateDefaultPetAsync}" />
+                <InvokeCommandAction Command="{Binding CreateDefaultPetAsyncCommand}" />
             </EventTriggerBehavior>
             <behaviors:DrawWindowBehavior></behaviors:DrawWindowBehavior>
             <behaviors:AnimationBehaviour CurrentDirection="{Binding Path=PetDirection, Mode=TwoWay}" />
