@@ -29,4 +29,8 @@ public static class Config
 
     public static int DefaultPetFrameWidth { get; } = Settings.GetValue<int>("DefaultPet:FrameWidth");
     public static int DefaultPetFrameHeight { get; } = Settings.GetValue<int>("DefaultPet:FrameHeight");
+    
+    public static string ConnectionString { get; } = 
+        Settings.GetValue<string>("Repository:DataBase") ?? "Data Source=Repository/citas.db";
+
 }

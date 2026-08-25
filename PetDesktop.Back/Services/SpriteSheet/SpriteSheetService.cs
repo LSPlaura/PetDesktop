@@ -5,7 +5,7 @@ using Serilog;
 
 namespace PetDesktop.Back.Services.SpriteSheet;
 
-public class SpriteSheetService(SpriteSheetGenerator spriteSheetGenerator, SpriteSheetRepository spriteSheetRepository)
+public class SpriteSheetService(SpriteSheetGenerator spriteSheetGenerator, ISpriteSheetRepository spriteSheetRepository)
 {
 
    public async Task<Result<Models.SpriteSheet, SpriteSheetError>> CreateAsync(string folderRoute, Models.SpriteSheet item, List<Stream> pngImages)
