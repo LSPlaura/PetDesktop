@@ -1,4 +1,3 @@
-using Avalonia.Media.Imaging;
 using Microsoft.Extensions.Configuration;
 
 namespace PetDesktop.Back.Config;
