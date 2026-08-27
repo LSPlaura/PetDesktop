@@ -32,7 +32,7 @@ public static class Config
     public static string DataBaseFolder { get; } =
         Settings.GetValue<string>("Repository:DataBaseFolder") ?? "Data";
     public static string DataBaseFile { get; } =
-        Settings.GetValue<string>("Repository:DataBaseFolder") ?? "petDesktop";
+        Settings.GetValue<string>("Repository:DataBaseFile") ?? "petDesktop";
     public static string ConnectionString { get; } = $"Data Source={DataBaseFolder}/{DataBaseFile}.db;Foreign Keys=True;";
 
 }
