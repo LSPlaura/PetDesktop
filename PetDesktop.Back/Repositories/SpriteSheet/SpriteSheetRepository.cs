@@ -28,7 +28,24 @@ public class SpriteSheetRepository (AppDbContext context) : ISpriteSheetReposito
         await context.SaveChangesAsync();
         return value;
     }
-    
+
+    public Task<Models.SpriteSheet> UpdateAsync((string PetName, string SpriteName) key)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Models.SpriteSheet?> GetByIdAsync((string PetName, string SpriteName) key)
+    {
+        return context.SpriteSheet
+            .FirstOrDefaultAsync(s => s.AssociatedPet.ToLower() == key.PetName.ToLower() 
+                                      && s.Name.ToLower() == key.SpriteName.ToLower());
+    }
+
+    public Task<bool> ExistsAsync((string PetName, string SpriteName) key)
+    {
+        throw new NotImplementedException();
+    }
+
     // public async Task DeleteRangeAsync(string petName)
     // {
     //     var spriteSheet = await GetAllAssociatedPet(key);
@@ -44,22 +61,4 @@ public class SpriteSheetRepository (AppDbContext context) : ISpriteSheetReposito
     //     await context.SaveChangesAsync();
     //     return spriteSheet;
     // }
-
-    public Task<Models.SpriteSheet> UpdateAsync(string key)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<Models.SpriteSheet?> GetByIdAsync(string key)
-    {
-        if (string.IsNullOrEmpty(key)) return null;
-        
-        return await context.SpriteSheet
-            .FirstOrDefaultAsync(p => p.Name.ToLower() == key.ToLower());
-    }
-
-    public Task<bool> ExistsAsync(string key)
-    {
-        throw new NotImplementedException();
-    }
 }
