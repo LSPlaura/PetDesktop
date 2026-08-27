@@ -29,4 +29,10 @@
       <PackageReference Include="SkiaSharp" Version="3.119.4" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="appSettings.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

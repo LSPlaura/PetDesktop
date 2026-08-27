@@ -29,7 +29,10 @@ public static class Config
     public static int DefaultPetFrameWidth { get; } = Settings.GetValue<int>("DefaultPet:FrameWidth");
     public static int DefaultPetFrameHeight { get; } = Settings.GetValue<int>("DefaultPet:FrameHeight");
 
-    public static string ConnectionString { get; } =
-        Settings.GetValue<string>("Repository:DataBase") ?? "Data Source=Repository/citas.db;Foreign Keys=True;";
+    public static string DataBaseFolder { get; } =
+        Settings.GetValue<string>("Repository:DataBaseFolder") ?? "Data";
+    public static string DataBaseFile { get; } =
+        Settings.GetValue<string>("Repository:DataBaseFolder") ?? "petDesktop";
+    public static string ConnectionString { get; } = $"Data Source={DataBaseFolder}/{DataBaseFile}.db;Foreign Keys=True;";
 
 }

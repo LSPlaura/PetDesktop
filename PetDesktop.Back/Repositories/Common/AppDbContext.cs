@@ -6,10 +6,14 @@ namespace PetDesktop.Back.Repositories.Common;
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
     public DbSet<Models.Pet> Pet {get; set; } = null!;
-    public DbSet<Models.SpriteSheet> SpriteSheet {get; set; } = null!;
+    public DbSet<Models.SpriteSheet> SpriteSheet { get; set; } = null!;
     
     public void EnsureCreated()
     {
+        if (!Directory.Exists(Config.Config.DataBaseFolder))
+        {
+            Directory.CreateDirectory(Config.Config.DataBaseFolder);
+        }
         Database.EnsureCreated();
     }
 
