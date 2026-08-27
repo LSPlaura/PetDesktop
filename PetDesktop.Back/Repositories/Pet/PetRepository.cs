@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using PetDesktop.Back.Entities;
+using PetDesktop.Back.Repositories.Common;
 using ILogger = Serilog.ILogger;
 
 namespace PetDesktop.Back.Repositories.Pet;

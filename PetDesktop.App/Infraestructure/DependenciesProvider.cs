@@ -2,7 +2,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PetDesktop.Back.Config;
-using PetDesktop.Back.Entities;
+using PetDesktop.Back.Repositories.Common;
 using PetDesktop.Back.Repositories.Pet;
 using PetDesktop.Back.Repositories.SpriteSheet;
 using PetDesktop.Back.Services.Pet;

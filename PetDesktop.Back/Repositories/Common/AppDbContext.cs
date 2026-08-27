@@ -1,48 +1,13 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using PetDesktop.Back.Models;
 
-namespace PetDesktop.Back.Entities;
+namespace PetDesktop.Back.Repositories.Common;
 
-public class AppDbContext : DbContext
+public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
-    public DbSet<Pet> Pet {get; set; } = null!;
-    public DbSet<SpriteSheet> SpriteSheet {get; set; } = null!;
+    public DbSet<Models.Pet> Pet {get; set; } = null!;
+    public DbSet<Models.SpriteSheet> SpriteSheet {get; set; } = null!;
     
-    private readonly string _connection;
-    
-    public AppDbContext(string connection)
-    {
-        _connection = connection;
-    }
-    
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
-    {
-        _connection = "";
-    }
-    
-    //cambiar en un futuro los constructores para poder aplicarle inyeccion de dependencias y que onconfiguring se aplique
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        if (!optionsBuilder.IsConfigured)
-        {
-            // 1. Creamos la conexión pasando la cadena
-            var connection = new SqliteConnection(_connection);
-                 
-            // 2. Abrimos la conexión manualmente
-            connection.Open();
-     
-            // 3. Ejecutamos el comando PRAGMA para forzar la activación de Foreign Keys
-            using (var command = connection.CreateCommand())
-            {
-                command.CommandText = "PRAGMA foreign_keys = ON;";
-                command.ExecuteNonQuery();
-            }
-     
-            // 4. Le pasamos la conexión ya configurada a EF Core
-            optionsBuilder.UseSqlite(connection);
-             }
-    }
     public void EnsureCreated()
     {
         Database.EnsureCreated();
@@ -51,7 +16,7 @@ public class AppDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // 1. CONFIGURACIÓN EXPLÍCITA DE PET
-        modelBuilder.Entity<Pet>(builder =>
+        modelBuilder.Entity<Models.Pet>(builder =>
         {
             builder.ToTable("Pet");
             
@@ -77,7 +42,7 @@ public class AppDbContext : DbContext
         });
 
         // 2. CONFIGURACIÓN EXPLÍCITA DE SPRITESHEET
-        modelBuilder.Entity<SpriteSheet>(builder =>
+        modelBuilder.Entity<Models.SpriteSheet>(builder =>
         {
             builder.ToTable("SpriteSheet");
             
@@ -100,7 +65,7 @@ public class AppDbContext : DbContext
                 .IsRequired();
 
             // Relación inversa: Mapea la FK físicac con ON DELETE CASCADE
-            builder.HasOne<Pet>()                             
+            builder.HasOne<Models.Pet>()                             
                 .WithMany()                                   
                 .HasForeignKey(s => s.AssociatedPet)          
                 .HasPrincipalKey(p => p.Name)                 

@@ -25,12 +25,12 @@ public static class Config
         Settings.GetValue<string>("DefaultPet:InitialAnimation") ?? "Default_Animation";
 
     public static string DefaultPetSpritesRoute { get; } =
-        Settings.GetValue<string>("DefaultPet:Route") ?? "avares://PetDesktop.App/Assets/DefaultPet";
+        Settings.GetValue<string>("DefaultPet:Route") ?? "Assets/DefaultPet";
 
     public static int DefaultPetFrameWidth { get; } = Settings.GetValue<int>("DefaultPet:FrameWidth");
     public static int DefaultPetFrameHeight { get; } = Settings.GetValue<int>("DefaultPet:FrameHeight");
-    
-    public static string ConnectionString { get; } = 
-        Settings.GetValue<string>("Repository:DataBase") ?? "Data Source=Repository/citas.db";
+
+    public static string ConnectionString { get; } =
+        Settings.GetValue<string>("Repository:DataBase") ?? "Data Source=Repository/citas.db;Foreign Keys=True;";
 
 }

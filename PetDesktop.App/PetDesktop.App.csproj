@@ -37,7 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AvaloniaResource Include="Assets\**" />
+    <None Include="Assets\**" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   
 </Project>

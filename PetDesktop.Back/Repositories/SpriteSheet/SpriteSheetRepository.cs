@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using PetDesktop.Back.Entities;
+using PetDesktop.Back.Repositories.Common;
 
 namespace PetDesktop.Back.Repositories.SpriteSheet;
 
