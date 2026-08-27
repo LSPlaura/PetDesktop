@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PetDesktop.App.Infraestructure;
 using PetDesktop.App.Views;
 using PetDesktop.Back.Repositories.Common;
+using PetDesktop.Back.Repositories.Pet;
 
 namespace PetDesktop.App;
 
@@ -26,7 +27,7 @@ public partial class App : Application
         
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.MainWindow = new MainWindow();
+            desktop.MainWindow = serviceProvider.GetService<MainWindow>();
         }
 
         base.OnFrameworkInitializationCompleted();

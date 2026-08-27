@@ -1,6 +1,8 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using PetDesktop.App.ViewModels;
+using PetDesktop.App.Views;
 using PetDesktop.Back.Config;
 using PetDesktop.Back.Repositories.Common;
 using PetDesktop.Back.Repositories.Pet;
@@ -19,6 +21,8 @@ public static class DependenciesProvider
         RegisterGenerator(services);
         RegisterOrchestator(services);
         RegisterServices(services);
+        RegisterViewModels(services);
+        RegisterViews(services);
         return services.BuildServiceProvider();
     }
 
@@ -50,5 +54,13 @@ public static class DependenciesProvider
                 sp.GetRequiredService<SpriteSheetGenerator>()
             )
         );
+    }
+    private static void RegisterViewModels(IServiceCollection services)
+    {
+        services.AddTransient<MainWindowViewModel>(sp => new MainWindowViewModel(sp.GetRequiredService<PetCreationOrchestrator>(), sp.GetRequiredService<PetService>()));
+    }
+    private static void RegisterViews(IServiceCollection services)
+    {
+        services.AddTransient<MainWindow>(sp => new MainWindow(sp.GetRequiredService<MainWindowViewModel>()));
     }
 }
