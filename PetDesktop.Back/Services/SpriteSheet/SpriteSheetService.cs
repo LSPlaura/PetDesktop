@@ -7,7 +7,12 @@ namespace PetDesktop.Back.Services.SpriteSheet;
 
 public class SpriteSheetService(SpriteSheetGenerator spriteSheetGenerator, ISpriteSheetRepository spriteSheetRepository)
 {
-
+   
+   public async Task<IEnumerable<Models.SpriteSheet>> GetAll(int page = 1, int pageSize = 20)
+   {
+      return await spriteSheetRepository.GetAllAsync(page, pageSize);
+   }
+   
    public async Task<Result<Models.SpriteSheet, SpriteSheetError>> CreateAsync(string folderRoute, Models.SpriteSheet item, List<Stream> pngImages)
    {
       try
@@ -29,9 +34,21 @@ public class SpriteSheetService(SpriteSheetGenerator spriteSheetGenerator, ISpri
             new SpriteSheetError.SpriteSheetGeneratorError($"Error en la generación del spriteSheet: {ex.Message}"));
       }
    }
-
-   public async Task<IEnumerable<Models.SpriteSheet>> GetAll(int page = 1, int pageSize = 20)
+   
+   public async Task<Result<Models.SpriteSheet, SpriteSheetError>> GetByIdAsync ((string petName, string spriteSheetName) key)
    {
-      return await spriteSheetRepository.GetAllAsync(page, pageSize);
+      if (!await spriteSheetRepository.ExistsAsync(key))
+      {
+         Log.Error("No se ha encontrado el spritesheet que se ha intentado buscar");
+         return Result.Failure<Models.SpriteSheet, SpriteSheetError>(new SpriteSheetError.SpriteSheetFindError(key.petName, key.spriteSheetName));
+      }
+      var spriteSheet = await spriteSheetRepository.GetByIdAsync(key);
+      
+      if (spriteSheet == null)
+      {
+         Log.Error("No se ha encontrado el spritesheet que se ha intentado buscar");
+         return Result.Failure<Models.SpriteSheet, SpriteSheetError>(new SpriteSheetError.SpriteSheetFindError(key.petName, key.spriteSheetName));
+      }
+      return spriteSheet;
    }
 }

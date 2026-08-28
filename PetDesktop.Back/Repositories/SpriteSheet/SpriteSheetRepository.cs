@@ -41,9 +41,11 @@ public class SpriteSheetRepository (AppDbContext context) : ISpriteSheetReposito
                                       && s.Name.ToLower() == key.SpriteName.ToLower());
     }
 
-    public Task<bool> ExistsAsync((string PetName, string SpriteName) key)
+    public async Task<bool> ExistsAsync((string PetName, string SpriteName) key)
     {
-        throw new NotImplementedException();
+        return await context.SpriteSheet
+            .AnyAsync(s => s.AssociatedPet.ToLower() == key.PetName.ToLower() 
+                           && s.Name.ToLower() == key.SpriteName.ToLower());
     }
 
     // public async Task DeleteRangeAsync(string petName)
@@ -60,5 +62,5 @@ public class SpriteSheetRepository (AppDbContext context) : ISpriteSheetReposito
     //     context.SpriteSheet.Remove(spriteSheet);
     //     await context.SaveChangesAsync();
     //     return spriteSheet;
-    // }
+    // } 
 }

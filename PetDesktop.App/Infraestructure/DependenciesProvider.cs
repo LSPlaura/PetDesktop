@@ -57,7 +57,9 @@ public static class DependenciesProvider
     }
     private static void RegisterViewModels(IServiceCollection services)
     {
-        services.AddTransient<MainWindowViewModel>(sp => new MainWindowViewModel(sp.GetRequiredService<PetCreationOrchestrator>(), sp.GetRequiredService<PetService>()));
+        services.AddTransient<MainWindowViewModel>(sp => new MainWindowViewModel(sp.GetRequiredService<PetCreationOrchestrator>(),
+            sp.GetRequiredService<PetService>(),
+            sp.GetRequiredService<SpriteSheetService>()));
     }
     private static void RegisterViews(IServiceCollection services)
     {
