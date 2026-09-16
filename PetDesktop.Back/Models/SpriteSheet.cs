@@ -11,7 +11,7 @@ public class SpriteSheet
     public SpriteSheet(string name, string route, int frameWidth, int frameHeight, string associatedPet)
     {
         Name = name;
-        Route = route;
+        Route = route + ".png";
         FrameHeight = frameHeight;
         FrameWidth = frameWidth;
         AssociatedPet = associatedPet;

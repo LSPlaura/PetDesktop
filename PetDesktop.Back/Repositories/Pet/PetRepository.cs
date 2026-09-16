@@ -44,9 +44,9 @@ public class PetRepository(AppDbContext context) : IPetRepository
             .FirstOrDefaultAsync(p => p.Name.ToLower() == key.ToLower());
     }
 
-    public Task<bool> ExistsAsync(string key)
+    public async Task<bool> ExistsAsync(string key)
     {
-        throw new NotImplementedException();
+        return await context.Pet.AnyAsync(p => p.Name == key); 
     }
 
     public async Task<bool> DeleteAllAsync()

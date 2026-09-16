@@ -63,4 +63,18 @@ public class PetService(IPetRepository petRepository)
             return Result.Failure<bool, PetError>(new PetError.PetDbError($"Error in the database: {ex.Message}"));
         }
     }
+    
+    public async Task<Result<bool, PetError>> ExistsAsync(string name)
+    { 
+        Log.Information("Request received to clear all pet records from the database.");
+        try
+        {
+            return await petRepository.ExistsAsync(name); 
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Database infrastructure failed while attempting to delete all pets.");
+            return Result.Failure<bool, PetError>(new PetError.PetDbError($"Error in the database: {ex.Message}"));
+        }
+    }
 }

@@ -9,30 +9,43 @@ namespace PetDesktop.Back.Factories;
 
 public static class SpriteSheetFactory
 {
-    //private static readonly string _defaultSpritesRoute = Path.Combine(AppContext.BaseDirectory, "Assets", "Sprites", "DefaultPet");
     private static readonly string _spriteSheetsRoute =
         Path.Combine(Config.Config.SpriteSheetRoute, Config.Config.DefaultPetName);
-    private static readonly ILogger _logger = Log.ForContext(typeof(SpriteSheetFactory));
+    private static readonly ILogger Log = Serilog.Log.ForContext(typeof(SpriteSheetFactory));
 
     public static async Task<Result<bool, DefaultPetError>> CreateAnimationsDefaultPetAsync(SpriteSheetService service)
     {
+        Log.Information("Iniciando la generación de animaciones para la mascota por defecto...");
+        Log.Debug("Ruta origen de sprites: {DefaultPetSpritesRoute}", Config.Config.DefaultPetSpritesRoute);
+        Log.Debug("Ruta destino de SpriteSheets: {SpriteSheetsRoute}", _spriteSheetsRoute);
+
         if (!Directory.Exists(Config.Config.DefaultPetSpritesRoute))
         {
-            //Console.WriteLine($"[Factory] La ruta origen no existe: {_defaultSpritesRoute}");
+            Log.Error("Error crítico: El directorio origen de sprites no existe en la ruta {Route}", Config.Config.DefaultPetSpritesRoute);
             return Result.Failure<bool, DefaultPetError>(
                 new DefaultPetError.DefaultSpriteSheetInicializationError.AssetsFolderNotFound("Assets file not found"));
         }
 
         var foldersRoute = Directory.GetDirectories(Config.Config.DefaultPetSpritesRoute);
+        Log.Information("Se encontraron {Count} carpetas de animación para procesar.", foldersRoute.Length);
 
         foreach (var folder in foldersRoute)
         {
-            var routeFiles = Directory.GetFiles(folder, "*.png")
-                .OrderBy(file => Path.GetFileName(file));
-
-            if (!routeFiles.Any()) continue;
-
             string nameAnimation = Path.GetFileName(folder);
+            Log.Information("Procesando animación: {AnimationName} desde {FolderPath}", nameAnimation, folder);
+
+            var routeFiles = Directory.GetFiles(folder, "*.png")
+                .OrderBy(file => Path.GetFileName(file))
+                .ToList();
+
+            if (!routeFiles.Any())
+            {
+                Log.Warning("La carpeta de la animación {AnimationName} no contiene archivos .png. Omitiendo...", nameAnimation);
+                continue;
+            }
+
+            Log.Debug("Se encontraron {FileCount} cuadros de imagen para la animación '{AnimationName}'", routeFiles.Count, nameAnimation);
+
             List<Stream> imagesOpened = new List<Stream>();
 
             try
@@ -45,33 +58,50 @@ public static class SpriteSheetFactory
                         image = File.OpenRead(fileRoute);
                         imagesOpened.Add(image);
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
+                        Log.Error(ex, "Error al abrir el archivo de imagen {FileRoute} para la animación '{AnimationName}'", fileRoute, nameAnimation);
                         if (image != null) await image.DisposeAsync();
                         return Result.Failure<bool, DefaultPetError>(
                             new DefaultPetError.DefaultSpriteSheetInicializationError($"Error: {ex.Message}"));
                     }
                 }
-                
-                var spriteSheet = new SpriteSheet(nameAnimation, Path.Combine(_spriteSheetsRoute, nameAnimation), Config.Config.DefaultPetFrameWidth,
-                    Config.Config.DefaultPetFrameHeight, Config.Config.DefaultPetName);
 
+                var spriteSheet = new SpriteSheet(
+                    nameAnimation, 
+                    Path.Combine(_spriteSheetsRoute, nameAnimation), 
+                    Config.Config.DefaultPetFrameWidth,
+                    Config.Config.DefaultPetFrameHeight, 
+                    Config.Config.DefaultPetName
+                );
+
+                Log.Debug("Solicitando la creación del SpriteSheet '{AnimationName}' al servicio...", nameAnimation);
                 var result = await service.CreateAsync(_spriteSheetsRoute, spriteSheet, imagesOpened);
-                if (result.IsFailure) return Result.Failure<bool, DefaultPetError>(new DefaultPetError.DefaultSpriteSheetInicializationError($"Error while creating the spriteSheets: {result.Error.Message}"));
-                //Console.WriteLine($"[Factory] SpriteSheet '{spriteSheet.Name}' creado con éxito.");
+
+                if (result.IsFailure)
+                {
+                    Log.Error("Falló la creación del SpriteSheet '{AnimationName}'. Error: {ErrorMessage}", nameAnimation, result.Error.Message);
+                    return Result.Failure<bool, DefaultPetError>(
+                        new DefaultPetError.DefaultSpriteSheetInicializationError($"Error while creating the spriteSheets: {result.Error.Message}"));
+                }
+
+                Log.Information("SpriteSheet '{AnimationName}' creado y registrado con éxito.", nameAnimation);
             }
             catch (Exception ex)
             {
+                Log.Error(ex, "Excepción inesperada al procesar la animación '{AnimationName}' en {Folder}", nameAnimation, folder);
                 return Result.Failure<bool, DefaultPetError>(
                     new DefaultPetError.DefaultSpriteSheetInicializationError($"Error: {ex.Message}"));
-                //Console.WriteLine($"[Factory] Error al procesar la animación en {folder}: {ex.Message}");
             }
             finally
             {
-                foreach (var stream in imagesOpened) await stream.DisposeAsync();
+                Log.Debug("Cerrando los streams de imagen para la animación '{AnimationName}'...", nameAnimation);
+                foreach (var stream in imagesOpened) 
+                    await stream.DisposeAsync();
             }
         }
+
+        Log.Information("Generación de animaciones finalizada con éxito.");
         return Result.Success<bool, DefaultPetError>(true);
     }
 }
-// while creating the spritesSheets of the defaultPet: 

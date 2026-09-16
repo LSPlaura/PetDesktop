@@ -31,21 +31,13 @@ public class PetCreationOrchestrator
     public async Task<Result<bool, DefaultPetError>> PetCreatorInitAsync()
     { 
         Log.Information("Starting first-time setup to create the default pet...");
-        
+    
         var defaultPet = new Models.Pet
         {
             Name = Config.Config.DefaultPetName,
         };
-        
-        var resultSpriteSheets = await Factories.SpriteSheetFactory.CreateAnimationsDefaultPetAsync(_spriteSheetService);
-        if (resultSpriteSheets.IsFailure)
-        {
-            Log.Error("Failed to generate default pet spritesheets. Setup aborted. Error: {ErrorMessage}", resultSpriteSheets.Error.Message);
-            await ExecuteLogicRollbackAsync(defaultPet.Name);
-            ExecuteHardRollBackAsync(defaultPet.Name);
-            return Result.Failure<bool, DefaultPetError>(resultSpriteSheets.Error); 
-        }
-        
+
+        // 1. PRIMERO: Guardar la mascota en la base de datos para satisfacer la Clave Foránea
         var resultPet = await _petService.CreateAsync(defaultPet);
         if (resultPet.IsFailure)
         {
@@ -54,6 +46,17 @@ public class PetCreationOrchestrator
             ExecuteHardRollBackAsync(defaultPet.Name);
             return Result.Failure<bool, DefaultPetError>(new DefaultPetError.DefaultPetInicializationError(resultPet.Error.Message));
         }
+    
+        // 2. SEGUNDO: Generar y guardar los SpriteSheets (ahora la FK "Pingu" ya existe en la BD)
+        var resultSpriteSheets = await Factories.SpriteSheetFactory.CreateAnimationsDefaultPetAsync(_spriteSheetService);
+        if (resultSpriteSheets.IsFailure)
+        {
+            Log.Error("Failed to generate default pet spritesheets. Setup aborted. Error: {ErrorMessage}", resultSpriteSheets.Error.Message);
+            await ExecuteLogicRollbackAsync(defaultPet.Name);
+            ExecuteHardRollBackAsync(defaultPet.Name);
+            return Result.Failure<bool, DefaultPetError>(resultSpriteSheets.Error); 
+        }
+    
         Log.Information("Default Pet successfully created and registered: {PetName}", defaultPet.Name);
         return Result.Success<bool, DefaultPetError>(true);
     }
