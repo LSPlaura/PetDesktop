@@ -1,7 +1,9 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -26,7 +28,7 @@ public partial class MainWindowViewModel : ObservableObject
     private readonly SpriteSheetService _spriteSheetService;
 
     private DispatcherTimer? _frameTimer;
-    private SKBitmap? _currentSheetBitmap;
+    private Bitmap? _currentSheetBitmap;
     private int _frameWidth;
     private int _frameHeight;
     private int _totalFrames;
@@ -37,10 +39,9 @@ public partial class MainWindowViewModel : ObservableObject
 
     [ObservableProperty]
     private MovementDirection _petDirection = MovementDirection.Right;
-
-    // Propiedad enlazada al control <Image Source="{Binding CurrentFrame}" />
+    
     [ObservableProperty]
-    private Bitmap? _currentFrame;
+    private IImage? _currentFrame;
 
     public MainWindowViewModel(
         PetCreationOrchestrator orchestrator, 
@@ -163,28 +164,23 @@ public partial class MainWindowViewModel : ObservableObject
         try
         {
             Log.Debug("Cargando el archivo de imagen desde {Route}...", spriteSheet.Route);
-            // Cargar la imagen completa del SpriteSheet en memoria
-            using var stream = File.OpenRead(spriteSheet.Route);
-            var newBitmap = SKBitmap.Decode(stream);
+    
+            // Cargar la imagen directamente desde la ruta con Avalonia
+            var newBitmap = new Avalonia.Media.Imaging.Bitmap(spriteSheet.Route);
 
-            if (newBitmap != null)
-            {
-                _currentSheetBitmap?.Dispose();
-                _currentSheetBitmap = newBitmap;
-                _frameWidth = spriteSheet.FrameWidth;
-                _frameHeight = spriteSheet.FrameHeight;
-                _totalFrames = _currentSheetBitmap.Width / _frameWidth;
-                _currentFrameIndex = 0;
+            _currentSheetBitmap?.Dispose();
+            _currentSheetBitmap = newBitmap;
+            _frameWidth = spriteSheet.FrameWidth;
+            _frameHeight = spriteSheet.FrameHeight;
 
-                Log.Information("Animación '{AnimationName}' cargada correctamente. Dimensiones: {Width}x{Height}, Cuadros totales: {TotalFrames}", 
-                    animationName, _frameWidth, _frameHeight, _totalFrames);
+            // En Avalonia se consulta PixelSize.Width para obtener el ancho real en píxeles
+            _totalFrames = _currentSheetBitmap.PixelSize.Width / _frameWidth;
+            _currentFrameIndex = 0;
 
-                RenderCurrentFrame();
-            }
-            else
-            {
-                Log.Error("SkiaSharp no pudo decodificar el archivo de imagen en {Route}", spriteSheet.Route);
-            }
+            Log.Information("Animación '{AnimationName}' cargada correctamente. Dimensiones: {Width}x{Height}, Cuadros totales: {TotalFrames}", 
+                animationName, _frameWidth, _frameHeight, _totalFrames);
+
+            RenderCurrentFrame();
         }
         catch (Exception ex)
         {
@@ -206,28 +202,9 @@ public partial class MainWindowViewModel : ObservableObject
 
         try
         {
-            // 1. Definir el área del cuadro a recortar en el SpriteSheet
             int sourceX = _currentFrameIndex * _frameWidth;
-            var cropRect = SKRectI.Create(sourceX, 0, _frameWidth, _frameHeight);
-
-            // 2. Extraer el sub-bitmap con SkiaSharp
-            using var croppedSKBitmap = new SKBitmap(_frameWidth, _frameHeight);
-            if (!_currentSheetBitmap.ExtractSubset(croppedSKBitmap, cropRect))
-            {
-                Log.Warning("SkiaSharp falló al extraer el cuadro {FrameIndex} con rectángulo {CropRect}", _currentFrameIndex, cropRect);
-                return;
-            }
-
-            // 3. Convertir el SKBitmap a Avalonia Bitmap
-            using var image = SKImage.FromBitmap(croppedSKBitmap);
-            using var data = image.Encode(SKEncodedImageFormat.Png, 100);
-            using var memoryStream = new MemoryStream();
-            
-            data.SaveTo(memoryStream);
-            memoryStream.Position = 0;
-
-            // 4. Asignar el nuevo Bitmap a la UI
-            CurrentFrame = new Bitmap(memoryStream);
+            var cropRect = new PixelRect(sourceX, 0, _frameWidth, _frameHeight);
+            CurrentFrame = new CroppedBitmap(_currentSheetBitmap, cropRect);
         }
         catch (Exception ex)
         {
