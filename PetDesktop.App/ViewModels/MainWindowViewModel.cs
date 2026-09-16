@@ -15,7 +15,6 @@ using PetDesktop.Back.Models;
 using PetDesktop.Back.Services.Pet;
 using PetDesktop.Back.Services.SpriteSheet;
 using Serilog;
-using SkiaSharp;
 
 namespace PetDesktop.App.ViewModels;
 
@@ -80,48 +79,37 @@ public partial class MainWindowViewModel : ObservableObject
                 ShowErrorAndShutdown("No se pudo inicializar el creador de mascotas.");
                 return;
             }
-
-            Log.Information("Obteniendo datos de la mascota '{DefaultPetName}'...", Config.DefaultPetName);
-            var pet = await _petService.GetById(Config.DefaultPetName);
-            if (pet == null)
-            {
-                Log.Error("No se encontró la mascota '{DefaultPetName}' en la base de datos.", Config.DefaultPetName);
-                ShowErrorAndShutdown($"No se encontró la mascota '{Config.DefaultPetName}'.");
-                return;
-            }
-
-            ActualPet = pet;
-            Log.Information("Mascota '{PetName}' cargada con éxito. Cargando animación inicial 'WalkRight'...", ActualPet.Name);
-        
-            // Cargar la animación inicial por defecto
-            await LoadAnimationAsync("WalkRight");
-            _frameTimer?.Start();
-            Log.Information("Timer de fotogramas iniciado.");
+            await GetDefaultPet();
         }
         else
         {
-            var pet = await _petService.GetById(Config.DefaultPetName);
-            if (pet == null)
-            {
-                Log.Error("No se encontró la mascota '{DefaultPetName}' en la base de datos.", Config.DefaultPetName);
-                ShowErrorAndShutdown($"No se encontró la mascota '{Config.DefaultPetName}'.");
-                return;
-            }
-
-            ActualPet = pet;
-            Log.Information("Mascota '{PetName}' cargada con éxito. Cargando animación inicial 'WalkRight'...", ActualPet.Name);
-        
-            // Cargar la animación inicial por defecto
-            await LoadAnimationAsync("WalkRight");
-            _frameTimer?.Start();
-            Log.Information("Timer de fotogramas iniciado.");
+            await GetDefaultPet();
         }
+    }
+
+    private async Task GetDefaultPet()
+    {
+        Log.Information("Obteniendo datos de la mascota '{DefaultPetName}'...", Config.DefaultPetName);
+        var pet = await _petService.GetById(Config.DefaultPetName);
+        if (pet == null)
+        {
+            Log.Error("No se encontró la mascota '{DefaultPetName}' en la base de datos.", Config.DefaultPetName);
+            ShowErrorAndShutdown($"No se encontró la mascota '{Config.DefaultPetName}'.");
+            return;
+        }
+
+        ActualPet = pet;
+        Log.Information("Mascota '{PetName}' cargada con éxito. Cargando animación inicial 'WalkRight'...", ActualPet.Name);
+        
+        await LoadAnimationAsync("WalkRight");
+        _frameTimer?.Start();
+        Log.Information("Timer de fotogramas iniciado.");
     }
 
     partial void OnPetDirectionChanged(MovementDirection value)
     {
         if (ActualPet == null) return;
-
+    
         string animationName = value switch
         {
             MovementDirection.Right => "WalkRight",
@@ -130,7 +118,7 @@ public partial class MainWindowViewModel : ObservableObject
             MovementDirection.Down => "WalkForwards",
             _ => "DefaultRight"
         };
-
+    
         Log.Debug("Dirección cambiada a {Direction}. Solicitando carga de animación '{AnimationName}'...", value, animationName);
         _ = LoadAnimationAsync(animationName);
     }
@@ -166,7 +154,7 @@ public partial class MainWindowViewModel : ObservableObject
             Log.Debug("Cargando el archivo de imagen desde {Route}...", spriteSheet.Route);
     
             // Cargar la imagen directamente desde la ruta con Avalonia
-            var newBitmap = new Avalonia.Media.Imaging.Bitmap(spriteSheet.Route);
+            var newBitmap = new Bitmap(spriteSheet.Route);
 
             _currentSheetBitmap?.Dispose();
             _currentSheetBitmap = newBitmap;
@@ -212,7 +200,7 @@ public partial class MainWindowViewModel : ObservableObject
         }
     }
 
-    private void ShowErrorAndShutdown(string message)
+    private static void ShowErrorAndShutdown(string message)
     {
         Log.Warning("Mostrando pantalla de error y cerrando aplicación. Mensaje: {ErrorMessage}", message);
         if (Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
