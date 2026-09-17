@@ -9,7 +9,7 @@
         x:DataType="vm:MainWindowViewModel"
         mc:Ignorable="d" 
         d:DesignWidth="300" d:DesignHeight="300"
-        Width="300" Height="300"
+        Width="64" Height="64"
         x:Class="PetDesktop.App.Views.MainWindow"
         x:CompileBindings="False"
         Title="PetDesktop"
@@ -30,9 +30,11 @@
         </i:Interaction.Behaviors>
         
         <Image Source="{Binding CurrentFrame}" 
-               Width="128" 
-               Height="128"
+               Width="64" 
+               Height="64"
+               Stretch="Uniform"
                HorizontalAlignment="Center" 
+               RenderOptions.BitmapInterpolationMode="HighQuality"
                VerticalAlignment="Center"/>
     </Grid>
 </Window>

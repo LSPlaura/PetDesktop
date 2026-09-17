@@ -69,6 +69,7 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private async Task Start()
     {
+        _actualPet = null;
         if (!_petService.ExistsAsync(Config.DefaultPetName).Result.Value)
         {
             Log.Information("Iniciando la creación de la mascota por defecto...");

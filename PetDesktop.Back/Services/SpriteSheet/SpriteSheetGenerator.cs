@@ -28,18 +28,19 @@ public class SpriteSheetGenerator
                 if (!stream.CanSeek) throw new InvalidDataException($"Stream no válido en el índice {i}");
                 stream.Position = 0;
 
-                //se asegura de que el stream esté en el formato correcto(png)
                 using (var codec = SKCodec.Create(stream))
-                using (var spriteUserBytes = SKBitmap.Decode(codec)) //convierte el stream en una matriz de pixeles añmacenados en la ram
+                using (var spriteUserBytes = SKBitmap.Decode(codec))
                 {
                     int lastPixelX = i * frameWidth;
 
-                    // Definimos el rectángulo (donde se va a estampar el sprite) de destino en el lienzo giga
+                    // Definimos el área origen exacta del sprite fuente
+                    var sourceArea = SKRect.Create(0, 0, Math.Min(frameWidth, spriteUserBytes.Width), Math.Min(frameHeight, spriteUserBytes.Height));
+
+                    // Definimos el rectángulo de destino en el lienzo
                     var drawingPositionArea = SKRect.Create(lastPixelX, 0, frameWidth, frameHeight);
 
-                    // Se dibuja el sprite en el lienzo
-                    // Skia maneja el redimensionamiento automáticamente si el origen y destino difieren
-                    canvas.DrawBitmap(spriteUserBytes, drawingPositionArea);
+                    // Dibujamos especificando origen y destino
+                    canvas.DrawBitmap(spriteUserBytes, sourceArea, drawingPositionArea);
                 }
             }
         }
